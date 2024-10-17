@@ -30,6 +30,7 @@ export class QuotesDataService { //Service to handle data stream
     endpoint: string = WS_ENDPOINT,
     cachingTime: number = 500
   ): Observable<IRate[]> {
+    console.log('cachingTime',cachingTime);
     let cachedData: IRate[] = []; //cache to store quotes received before throttleTime let them be passed down the stream
     this.connectToWSServer(endpoint);
     return this.quotesWS$.pipe(

@@ -1,29 +1,33 @@
 <div class="wrapper">
-  <button
-    mat-button
-    style="background-color: rgb(96, 144, 181)"
-    (click)="manageStream('start')"
-  >
-    Start Stream
-  </button>
-  <button
-    mat-button
-    style="background-color: rgb(134, 60, 60)"
-    (click)="manageStream('stop')"
-  >
-    Stop Stream
-  </button>
-  <div class="filter-wrap">
-    <label for="filter">Filter:</label>
-    <input #filter type="text" [value]="" />
-    <!--     one button is used to open and cloese connection to data stream -->
+  <div class="control-wrapper">
+    <button 
+      [ngClass]="quotesStreamIsStarted? 'button-stop-stream' : 'button-start-stream' " 
+      mat-button
+      (click)="manageStream(quotesStreamIsStarted? 'stop':'start');
+              quotesStreamIsStarted =!quotesStreamIsStarted;"
+      >
+      <mat-icon>{{quotesStreamIsStarted ? 'cancel' : 'smart_display'}}</mat-icon>
+      {{ quotesStreamIsStarted ? "Stop " : "Start" }} from the server
+    </button>
     <button
       mat-button
-      [style.background-color]="quotesStreamIsOpened ? 'grey' : 'green'"
-      (click)="quotesStreamIsOpened ? pauseQuotesStream() : getQuotesStream()" 
-    >
+      [ngClass]="quotesStreamIsOpened? 'button-stop-connection' : 'button-start-connection' " 
+      (click)="quotesStreamIsOpened ? pauseQuotesStream() : getQuotesStream(cachedTime)" 
+      >
+      <mat-icon>{{quotesStreamIsOpened ? 'cast_connected' : 'cast'}}</mat-icon>
       {{ quotesStreamIsOpened ? "Stop " : "Connect to" }} WS
     </button>
+    <div class="cache-wrapper">
+      <label for="cache">Caching Time:</label>
+      <div class="reset-wrapper">
+        <input id="cache" [(ngModel)]="cachedTime" >
+        <button mat-icon-button ><mat-icon matTooltip="Reset Stream" (click)="resetCacheTime()">restart_alt</mat-icon> </button>
+      </div>
+    </div>
+  </div>
+  <div class="filter-wrap">
+      <label for="">Filter: </label>
+      <input  [(ngModel)]="filterQuotesList">
   </div>
   <li class="header">
     <div class="table-row">

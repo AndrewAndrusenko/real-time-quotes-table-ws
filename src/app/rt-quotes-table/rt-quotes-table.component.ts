@@ -1,13 +1,8 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy,  ChangeDetectorRef,  Component,} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { QuotesDataService, IRate } from '../quotes-data.service';
 import { TestingMngService, IServerCommand } from '../testing-mng.service';
+import { FormControl } from '@angular/forms';
 @Component({
   selector: 'app-rt-quotes-table',
   templateUrl: './rt-quotes-table.component.html',
@@ -15,8 +10,12 @@ import { TestingMngService, IServerCommand } from '../testing-mng.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RTQuotesTableComponent {
-  @ViewChild('filter') public filterQuotesList: ElementRef; //Input to filter incoming quotes list
+
+  
+  public filterQuotesList:string = '';
+  public cachedTime:number = 500;
   public quotesStreamIsOpened: boolean = false; //Status of subscription to the quotes stream
+  public quotesStreamIsStarted: boolean = false; //Status of the quotes stream
   private quotesData$ = new Subscription(); //Subsction to the quotes stream
   private subsriptions = new Subscription(); //Collection to handle unsubscription when componenet is being destroyed
   public quotesDataArray: IRate[] = []; // Quotes array to be displayed in the template
@@ -28,12 +27,12 @@ export class RTQuotesTableComponent {
   ngOnDestroy(): void {
     this.subsriptions.unsubscribe(); //Close all subsription to avoid memory leaks
   }
-  getQuotesStream() {
+  getQuotesStream(cahceTime:number = 500) {
     //Subscribe to the stream of quotes and handle update of quotes array
     this.quotesStreamIsOpened = true;
     this.subsriptions.add(
       (this.quotesData$ = this.quotesService
-        .tapToQuotesStream(undefined, 500)
+        .tapToQuotesStream(undefined, cahceTime)
         .subscribe((newQuotesSet) => {
           //subscribe to quote stream
           //manually update quotes array with new data to optimize rendering.
@@ -51,17 +50,19 @@ export class RTQuotesTableComponent {
               this.quotesDataArray.push(newRate); //add new quotes to the end of the list
             }
           });
-          this.filterQuotesList.nativeElement.value !== ''
+          this.filterQuotesList !== ''
             ? (this.quotesDataArray = this.quotesDataArray.filter(
                 (quotesData) =>
-                  this.filterQuotesList.nativeElement.value
-                    .split(',')
-                    .includes(quotesData.symbol)
+                  this.filterQuotesList.toUpperCase().split(',').includes(quotesData.symbol)
               ))
             : null; //filter updated array to show only selected quotes
           this.ref.detectChanges();
         }))
     );
+  }
+  resetCacheTime() {
+    this.pauseQuotesStream();
+    this.getQuotesStream(this.cachedTime)
   }
   trackByfn(index: number, item: IRate) {
     //trackBy to avoid whole list rendering on update
