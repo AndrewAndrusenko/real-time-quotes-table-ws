@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RTQuotesTableComponent } from './rt-quotes-table.component';
-import { QuotesDataService } from '../quotes-data.service';
-import { TestingMngService, IServerCommand } from '../testing-mng.service';
+import { QuotesDataService } from '../../services/quotes-data.service';
+import { TestingMngService, IServerCommand } from '../../services/testing-mng.service';
 import { ChangeDetectionStrategy } from '@angular/core';
 
 describe('RTQuotesTableComponent', () => {
@@ -43,7 +43,7 @@ describe('RTQuotesTableComponent', () => {
           .subscribe(async (ratesSet) => {
             emmmision++;
             expect(ratesSet.length).toBeGreaterThan(1); //check if there is data from testing server
-            component.quotesDataArray = ratesSet; // omit updating data since change detection set to defalut to control view content
+            // component.quotesDataArray = ratesSet; // omit updating data since change detection set to defalut to control view content
             fixture.detectChanges(); //detect changes in the template
             let rowsInView =
               fixture.nativeElement.ownerDocument.querySelectorAll(

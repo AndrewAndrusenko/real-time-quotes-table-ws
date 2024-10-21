@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "run ws-rt": "node ws-server",
+    "type": "shell",
+    "command":"node \".Backend-Express Node-API Server\"/ws-server"
   },
   "keywords": [],
   "author": "",

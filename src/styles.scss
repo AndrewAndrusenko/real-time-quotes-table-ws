@@ -1,14 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 @import url('https://fonts.googleapis.com/css2?family=Indie+Flowe&display=swap');
 
+body {
 * {
   font-family: "Indie Flower", cursive;
   font-weight: 400;
   font-style: normal;
 }
-body {
-background-color:rgb(193, 201, 213)
+:root {
+  --background-color:$main-background-color
 }
-
+  $main-background-color:rgb(193, 201, 213);
+  background-color:$main-background-color
+}
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

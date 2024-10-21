@@ -37,6 +37,14 @@
           }
         }
       }
+    },
+    {
+      "type": "npm",
+      "script": "command",
+      "path": "testng-ws-server-node",
+      "problemMatcher": [],
+      "label": "npm: command - testng-ws-server-node",
+      "detail": "node ws-server"
     }
   ]
 }

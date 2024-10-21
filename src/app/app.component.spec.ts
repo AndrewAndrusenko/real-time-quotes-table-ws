@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import { RTQuotesTableComponent } from './rt-quotes-table/rt-quotes-table.component';
+import { RTQuotesTableComponent } from './components/rt-quotes-table/rt-quotes-table.component';
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({

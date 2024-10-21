@@ -1,0 +1,48 @@
+
+.main {
+  display: flex;
+}
+.mat-expansion-panel {
+  background-color:var(--background-color);
+}
+.main label {
+  color: transparent;
+  width: 0.11vw;
+}
+.button-start-stream {
+  background-image: linear-gradient(to right, #00c6ff 0%, #0072ff  51%, #00c6ff  100%);
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;            
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  height: 6vh;
+}
+.button-start-stream:hover {
+  background-position: right center; /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+.button-stop-stream {
+  background-image: linear-gradient(to right, #517fa4 0%, #243949  51%, #517fa4  100%);
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;            
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  display: block;
+  width: 22vw;
+  height: 6vh;
+}
+.button-stop-stream:hover {
+  background-position: right center; /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+form {
+  display:flex;
+  gap: 2vw;
+}
+.mat-form-field {
+  width: 8vw;
+}

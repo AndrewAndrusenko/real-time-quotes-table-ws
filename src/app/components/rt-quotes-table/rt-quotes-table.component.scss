@@ -1,0 +1,86 @@
+.wrapper {
+  width: 60vw;
+  background-color: inherit;
+  margin-top: 2vh;
+  margin-left: 10vw;
+}
+.control-wrapper {
+  display: flex;
+  align-items: center;
+  gap:1vw;
+  margin-bottom: 0.5vh;
+}
+.control-wrapper input {
+  width: 5vw;
+  height: 2vh;
+}
+.button-reset-connection {
+  background-image: linear-gradient(to right, #919191 0%, #70766d  51%, #a4aaa0  100%);
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;            
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  display: flex;
+  width: 10vw;
+  height: 3.5vh;
+}
+.button-reset-connection mat-icon{
+  vertical-align:text-bottom;
+}
+.button-start-connection {
+  background-image: linear-gradient(to right, #76b852 0%, #8DC26F  51%, #76b852  100%);
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;            
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  display: flex;
+  width: 17vw;
+  margin-right: 8vw;
+}
+.button-start-connection:hover {
+  background-position: right center; /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+.button-stop-connection {
+  background-image: linear-gradient(to right, #44A08D 0%, #093637  51%, #44A08D  100%);
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;            
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  display: flex;
+  width: 17vw;
+  margin-right: 8vw;
+}
+.button-stop-connection :hover {
+  background-position: right center; /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+.filter-wrap input {
+  margin-bottom: 1vh;
+  width: 47vw;
+  margin-left: 1vw;
+}
+p {
+  width: 15vw;
+  margin: 0;
+}
+.header p {
+  font-weight: bold;
+}
+li {
+  list-style-type: none;
+  color: rgb(34, 33, 33);
+}
+.table-row {
+  display: inline-flex;
+  margin: 0;
+}
+hr {
+  width: 55vw;
+  margin-left: -1vw;
+}

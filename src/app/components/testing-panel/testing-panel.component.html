@@ -1,0 +1,33 @@
+<div class="main">
+  <mat-expansion-panel class="headers-align"  label="Manage testing server panel" 
+
+  (opened)="panelOpenStateSD = true"
+  (closed)="panelOpenStateSD = false" >
+  <mat-expansion-panel-header>
+    <mat-panel-title >
+      Test Server
+    </mat-panel-title>
+    <mat-panel-description>
+      Tap to {{panelOpenStateSD? 'hide': 'open'}} control elements
+    </mat-panel-description>
+  </mat-expansion-panel-header >
+  <label #status >{{quotesStreamIsStarted |async}}</label>
+  <form [formGroup]="manageStreamForm">
+    <button mat-button
+    [ngClass]="status.innerHTML==='true'  ? 'button-stop-stream' : 'button-start-stream' " 
+    (click)="manageStream(status.innerHTML==='true' ? 'stop':'start');">
+    <mat-icon>{{status.innerHTML==='true' ? 'cancel' : 'smart_display'}}</mat-icon>
+    {{ (status.innerHTML==='true') ? "Stop " : "Start" }} from the server
+    </button>
+      <mat-form-field>
+        <input matInput placeholder="TimeToWork" matTooltip="Stream time in milliseconds" formControlName="timeToWork">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="Interval" matTooltip="Emit interval in milliseconds" formControlName="intervalToEmit">
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput placeholder="SymbolQty" matTooltip="Instrument quantity in the stream" formControlName="symbolQty">
+      </mat-form-field>
+  </form>
+</mat-expansion-panel>
+</div>
