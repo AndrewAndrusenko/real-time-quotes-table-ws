@@ -1,17 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css2?family=Indie+Flowe&display=swap');
 
-body {
+@import url('https://fonts.googleapis.com/css2?family=Indie+Flowe&display=swap');
+:root {
+  --contentWidth :40vw;
+
+  --color-text-dark: #191a23;
+  --color-text-light:#FFFFFF;
+  --color-text-header:#53565b;
+  --background-color:rgb(193, 201, 213);
+  
+  --border: 1px solid var(--color-dark);
+  --border-radius: 14px;
+  --border-radius-large: 45px;
+
+  --shadow:0 5px 0 0 var(--color-dark-alt);
+
+  --transition-duration: 0.5s;
+
+}
 * {
   font-family: "Indie Flower", cursive;
   font-weight: 400;
   font-style: normal;
+
 }
-:root {
-  --background-color:$main-background-color
+body{
+  background-color: var(--background-color);
 }
-  $main-background-color:rgb(193, 201, 213);
-  background-color:$main-background-color
-}
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

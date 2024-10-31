@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run ws-rt": "node ws-server",
-    "type": "shell",
-    "command":"node \".Backend-Express Node-API Server\"/ws-server"
+    "rt-mock-ws-server": "node ws-server"
+
   },
   "keywords": [],
   "author": "",

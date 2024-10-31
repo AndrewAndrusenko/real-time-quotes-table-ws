@@ -4,6 +4,7 @@
 }
 .mat-expansion-panel {
   background-color:var(--background-color);
+  width: 40vw;
 }
 .main label {
   color: transparent;
@@ -17,6 +18,8 @@
   box-shadow: 0 0 20px #eee;
   border-radius: 10px;
   height: 6vh;
+  min-width: 200px;
+  width: 15vw;
 }
 .button-start-stream:hover {
   background-position: right center; /* change the direction of the change here */
@@ -31,7 +34,8 @@
   box-shadow: 0 0 20px #eee;
   border-radius: 10px;
   display: block;
-  width: 22vw;
+  min-width: 200px;
+  width: 15vw;
   height: 6vh;
 }
 .button-stop-stream:hover {
@@ -44,5 +48,5 @@ form {
   gap: 2vw;
 }
 .mat-form-field {
-  width: 8vw;
+  width: 5vw;
 }

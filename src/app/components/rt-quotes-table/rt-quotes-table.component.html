@@ -1,38 +1,44 @@
-<div class="wrapper">
-  <app-testing-panel></app-testing-panel>
-  <hr>
-  <div class="control-wrapper">
-    <button  mat-button     
-      [ngClass]="quotesStreamIsOpened? 'button-stop-connection' : 'button-start-connection' " 
+<main class="content">
+  <section class="testing-panel">
+    <app-testing-panel></app-testing-panel>
+  </section>
+  <section class="connection-panel">
+    <button  mat-button class="connection-panel__button"    
+      [ngClass]="quotesStreamIsOpened? 'stop-connection' : 'start-connection' " 
       (click)="quotesStreamIsOpened ? pauseQuotesStream() : getQuotesStream(cachedTime);
               quotesStreamIsOpened = !quotesStreamIsOpened" >
-      <mat-icon>{{quotesStreamIsOpened ? 'cast_connected' : 'cast'}}</mat-icon>
-      {{ quotesStreamIsOpened ? "Stop " : "Connect to" }} WS
+      <mat-icon class="connection-panel__button-icon">{{quotesStreamIsOpened ? 'cast_connected' : 'cast'}}</mat-icon>
+      <span class="connection-panel__button-text">{{ quotesStreamIsOpened ? "Stop " : "Connect to" }} WS</span>
     </button>
+    <span class="connection-panel__cache">
       <label for="cache">Caching Time:</label>
-        <input id="cache" [(ngModel)]="cachedTime" matTooltip="Time to cache the stream in milliseconds" >
-        <button mat-button  (click)="resetCacheTime()" class="button-reset-connection">Reset <mat-icon matTooltip="Reset Stream" >restart_alt</mat-icon></button>
-  </div>
-  <div class="filter-wrap">
-      <label for="">Filter: </label>
-      <input  [(ngModel)]="filterQuotesList">
-  </div>
-  <li class="header">
-    <div class="table-row">
-      <p>Symbol</p>
-      <p>Bid</p>
-      <p>Ask</p>
-      <p>Time</p>
-    </div>
-    <hr />
-  </li>
-  <li *ngFor="let item of quotesData$ | async; let last = last; trackBy: trackByfn"  class="li-row" >
-    <div class="table-row">
-      <p>{{ item.symbol }}</p>
-      <p>{{ item.bid }}</p>
-      <p>{{ item.ask }}</p>
-      <p>{{ item.time | date : "HH:mm:ss:SSS" }}</p>
-    </div>
-    <hr *ngIf="!last"s>
-  </li>
-</div>
+      <input id="cache" class="connection-panel__cache-input" [(ngModel)]="cachedTime" matTooltip="Time to cache the stream in milliseconds" >
+      <button mat-button class="connection-panel__button reset-connection" (click)="resetCacheTime()">
+        <mat-icon class="connection-panel__button-icon" matTooltip="Reset Stream" >refresh</mat-icon>
+        <span class="connection-panel__button-text">Reset</span>
+      </button>
+    </span>
+  </section>
+  <section class="filter">
+    <label for="">Filter: </label>
+    <input class="filter__text" [(ngModel)]="filterQuotesList">
+  </section>
+  <section class="quotes-table">
+    <li class="quotes-table quotes-table__header">
+      <span class="quotes-table__header-col">Symbol</span>
+      <span class="quotes-table__header-col">Bid</span>
+      <span class="quotes-table__header-col">Ask</span>
+      <span class="quotes-table__header-col">Time</span>
+    </li>
+    <hr>
+    <li *ngFor="let item of quotesData$ | async; let last = last; trackBy: trackByfn">
+      <div class="quotes-table quotes-table__items">
+        <span class="quotes-table__items-col">{{ item.symbol }}</span>
+        <span class="quotes-table__items-col">{{ item.bid }}</span>
+        <span class="quotes-table__items-col">{{ item.ask }}</span>
+        <span class="quotes-table__items-col">{{ item.time | date : "HH:mm:ss:SSS" }}</span>
+      </div>
+      <hr class="quotes-table__items-divider" *ngIf="!last">
+    </li>
+  </section>
+</main>
