@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { map, throttleTime,  switchMap, pairwise } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
-export const WS_ENDPOINT = 'ws://localhost:3003'; //server address
+import { environment } from 'src/environments/environment';
 export interface IRate {
   //Intreface for received quotes from server
   time: Date; //quote rate
@@ -14,19 +14,19 @@ export interface IRate {
   providedIn: 'root',
 })
 export class QuotesDataService { //Service to handle data stream
-  constructor() {}
   private quotesWS$: WebSocketSubject<IRate[]>;
+  private WS_ENDPOINT = environment.TEST_WS_ENDPOINT;
   public quotesDataArray: IRate[] = []; // Quotes array to be displayed in the template
   //Connection to data provider server
   //param endpoint: data provider server address
-  private connectToWSServer(endpoint = WS_ENDPOINT): boolean {
-    !this.quotesWS$ || this.quotesWS$.closed? (this.quotesWS$ = webSocket(endpoint)) : null;
+  private connectToWSServer(endpoint = this.WS_ENDPOINT): boolean {
+    if (!this.quotesWS$ || this.quotesWS$.closed) {(this.quotesWS$ = webSocket(endpoint))}
     return this.quotesWS$.closed;
   }
   //tapToQuotesStrea - Connect to the server and prepare and return stream to manage incoming data
   //param endpoint: data provider server address
   //param cachingTime: time in ms to cache stream before pass it down to the client
-  public tapToQuotesStream( endpoint: string = WS_ENDPOINT,  cachingTime: number = 500): Observable<IRate[]> {
+  public tapToQuotesStream( endpoint: string = this.WS_ENDPOINT,  cachingTime = 500): Observable<IRate[]> {
     this.connectToWSServer(endpoint);
     return this.quotesWS$.pipe(
       pairwise(),
@@ -34,8 +34,12 @@ export class QuotesDataService { //Service to handle data stream
       throttleTime(cachingTime), 
       switchMap(newSetFull => {
         newSetFull.forEach(newRate=> {
-          let index = this.quotesDataArray.findIndex(rateRow=>rateRow.symbol===newRate.symbol)
-          index>-1?  this.quotesDataArray[index] = newRate : this.quotesDataArray.push(newRate)
+          const index = this.quotesDataArray.findIndex(rateRow=>rateRow.symbol===newRate.symbol)
+          if (index > -1)  {
+            this.quotesDataArray[index] = newRate
+          } else {
+          this.quotesDataArray.push(newRate)
+          }
         })
         return of(this.quotesDataArray)
       })

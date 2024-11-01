@@ -11,16 +11,16 @@
       <span class="connection-panel__button-text">{{ quotesStreamIsOpened ? "Stop " : "Connect to" }} WS</span>
     </button>
     <span class="connection-panel__cache">
-      <label for="cache">Caching Time:</label>
+      <label for="cache" class="connection-panel__cache-label">Cache Time:</label>
       <input id="cache" class="connection-panel__cache-input" [(ngModel)]="cachedTime" matTooltip="Time to cache the stream in milliseconds" >
       <button mat-button class="connection-panel__button reset-connection" (click)="resetCacheTime()">
-        <mat-icon class="connection-panel__button-icon" matTooltip="Reset Stream" >refresh</mat-icon>
+        <mat-icon class="connection-panel__button-icon reset-connection" matTooltip="Reset Stream" >refresh</mat-icon>
         <span class="connection-panel__button-text">Reset</span>
       </button>
     </span>
   </section>
   <section class="filter">
-    <label for="">Filter: </label>
+    <label class="filter__label" for="">Filter: </label>
     <input class="filter__text" [(ngModel)]="filterQuotesList">
   </section>
   <section class="quotes-table">
@@ -36,7 +36,7 @@
         <span class="quotes-table__items-col">{{ item.symbol }}</span>
         <span class="quotes-table__items-col">{{ item.bid }}</span>
         <span class="quotes-table__items-col">{{ item.ask }}</span>
-        <span class="quotes-table__items-col">{{ item.time | date : "HH:mm:ss:SSS" }}</span>
+        <span class="quotes-table__items-col">{{ item.time | date : "HH:mm:ss" }}</span>
       </div>
       <hr class="quotes-table__items-divider" *ngIf="!last">
     </li>

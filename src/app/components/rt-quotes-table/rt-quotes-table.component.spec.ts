@@ -27,7 +27,7 @@ describe('RTQuotesTableComponent', () => {
 
   it('receiving data with high frequency testing ', async () => {
     let emmmision = 0; //counter of emit for test to finish
-    let cmd: IServerCommand = {
+    const cmd: IServerCommand = {
       //command to create testing stream of quotes for 60 sec emiting data every 20 ms from 500 instruments
       cmd: 'start',
       timeToWork: 60000,
@@ -35,7 +35,7 @@ describe('RTQuotesTableComponent', () => {
       symbolQty: 500,
     };
     serviceTestingHelper.createTestingStream(cmd); //creatintg testing stream of quotes.
-    let cachingTime = 20; // caching time equals emiting interaval. real time flow without cache
+    const cachingTime = 20; // caching time equals emiting interaval. real time flow without cache
     expect(
       await new Promise((resolve) => {
         service
@@ -45,13 +45,13 @@ describe('RTQuotesTableComponent', () => {
             expect(ratesSet.length).toBeGreaterThan(1); //check if there is data from testing server
             // component.quotesDataArray = ratesSet; // omit updating data since change detection set to defalut to control view content
             fixture.detectChanges(); //detect changes in the template
-            let rowsInView =
+            const rowsInView =
               fixture.nativeElement.ownerDocument.querySelectorAll(
                 '.li-row'
               ).length; //take all elements of the quotes list
             await fixture.whenRenderingDone(); //wait till view updated
-            expect((rowsInView = ratesSet.length)).toBeTruthy(); //check that all received data has been transfered to the view
-            emmmision > 1000 ? resolve(true) : null; //testing on 1000 emit from server
+            expect((rowsInView === ratesSet.length)).toBeTruthy(); //check that all received data has been transfered to the view
+            if (emmmision > 1000)  {return resolve(true)} //testing on 1000 emit from server
           });
       })
     );
@@ -59,7 +59,7 @@ describe('RTQuotesTableComponent', () => {
 
   it('data consistency check bid equal or less then ask quote', async () => {
     let emmmision = 0; //counter of emit for test to finish
-    let cmd: IServerCommand = {
+    const cmd: IServerCommand = {
       //command to create testing stream of quotes for 30 sec emiting data every 20 ms from 500 instruments
       cmd: 'start',
       timeToWork: 10000,
@@ -72,7 +72,7 @@ describe('RTQuotesTableComponent', () => {
         service.tapToQuotesStream().subscribe((ratesSet) => {
           emmmision++;
           expect(ratesSet.every((rate) => rate.bid <= rate.ask)).toBeTruthy(); //checking quotes
-          emmmision > 10 ? resolve(true) : null; //testing on 10 emit from server
+          if (emmmision > 10)  {return resolve(true)} //testing on 10 emit from server
         });
       })
     );
@@ -80,7 +80,7 @@ describe('RTQuotesTableComponent', () => {
 
   it('checking of quotes stream intreface ', async () => {
     let emmmision = 0; //counter of emit for test to finish
-    let cmd: IServerCommand = {
+    const cmd: IServerCommand = {
       //command to create testing stream of quotes for 1 sec
       cmd: 'start',
       timeToWork: 1000,
@@ -97,7 +97,7 @@ describe('RTQuotesTableComponent', () => {
           expect(typeof ratesSet[0].bid).toBe('number');
           expect(new Date(ratesSet[0].time) instanceof Date).toBe(true);
           expect(typeof ratesSet[0].symbol).toBe('string');
-          emmmision > 1 ? resolve(true) : null; //testing on 1 emit
+          if (emmmision > 1)  {return resolve(true)} //testing on 1 emit
         });
       })
     );

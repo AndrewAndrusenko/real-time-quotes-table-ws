@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy,  ChangeDetectorRef,  Component,} from '@angular/core';
+import { ChangeDetectionStrategy,  Component,} from '@angular/core';
 import { Observable } from 'rxjs';
 import { QuotesDataService, IRate } from '../../services/quotes-data.service';
 @Component({
@@ -8,12 +8,12 @@ import { QuotesDataService, IRate } from '../../services/quotes-data.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RTQuotesTableComponent {
-  public filterQuotesList:string = '';
-  public cachedTime:number = 500;
-  public quotesStreamIsOpened: boolean = false; //Status of subscription to the quotes stream
+  public filterQuotesList = '';
+  public cachedTime = 500;
+  public quotesStreamIsOpened = false; //Status of subscription to the quotes stream
   public quotesData$ : Observable<IRate[]>; //Subsction to the quotes stream
   constructor(private quotesService: QuotesDataService) {}
-  getQuotesStream(cahceTime:number = 500) {//Subscribe to the stream of quotes and handle update of quotes array
+  getQuotesStream(cahceTime = 500) {//Subscribe to the stream of quotes and handle update of quotes array
     this.quotesData$ = this.quotesService.tapToQuotesStream(undefined, cahceTime);
   }
   resetCacheTime() {

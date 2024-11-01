@@ -1,8 +1,8 @@
-<div class="main">
-  <mat-expansion-panel class="headers-align"  label="Manage testing server panel" 
-
+<mat-expansion-panel 
+  label="Manage testing server panel" 
   (opened)="panelOpenStateSD = true"
-  (closed)="panelOpenStateSD = false" >
+  (closed)="panelOpenStateSD = false" 
+>
   <mat-expansion-panel-header>
     <mat-panel-title >
       Test Server
@@ -10,15 +10,21 @@
     <mat-panel-description>
       Tap to {{panelOpenStateSD? 'hide': 'open'}} control elements
     </mat-panel-description>
+    <label #status class="stream-status__label">{{quotesStreamIsStarted |async}}</label>
   </mat-expansion-panel-header >
-  <label #status >{{quotesStreamIsStarted |async}}</label>
+
   <form [formGroup]="manageStreamForm">
     <button mat-button
-    [ngClass]="status.innerHTML==='true'  ? 'button-stop-stream' : 'button-start-stream' " 
-    (click)="manageStream(status.innerHTML==='true' ? 'stop':'start');">
-    <mat-icon>{{status.innerHTML==='true' ? 'cancel' : 'smart_display'}}</mat-icon>
-    {{ (status.innerHTML==='true') ? "Stop " : "Start" }} from the server
+      [ngClass]="status.innerHTML==='true'  ? 'form__button-stream stop-stream' : 'form__button-stream start-stream'" 
+      (click)="manageStream(status.innerHTML==='true' ? 'stop':'start');">
+      <mat-icon>
+        {{status.innerHTML=='true' ? 'cancel' : 'smart_display'}}
+      </mat-icon>
+      <span class="form__button-stream-text">
+        {{ (status.innerHTML=='true')? "Stop " : "Start" }} from the server
+      </span> 
     </button>
+    <div class="form__parameters">
       <mat-form-field>
         <input matInput placeholder="TimeToWork" matTooltip="Stream time in milliseconds" formControlName="timeToWork">
       </mat-form-field>
@@ -28,6 +34,6 @@
       <mat-form-field>
         <input matInput placeholder="SymbolQty" matTooltip="Instrument quantity in the stream" formControlName="symbolQty">
       </mat-form-field>
+    </div>
   </form>
 </mat-expansion-panel>
-</div>
