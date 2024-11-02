@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy,  Component,} from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of, switchMap} from 'rxjs';
 import { QuotesDataService, IRate } from '../../services/quotes-data.service';
+import { FormControl } from '@angular/forms';
 @Component({
   selector: 'app-rt-quotes-table',
   templateUrl: './rt-quotes-table.component.html',
@@ -8,13 +9,23 @@ import { QuotesDataService, IRate } from '../../services/quotes-data.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RTQuotesTableComponent {
-  public filterQuotesList = '';
+  // public filterQuotesList = new FormControl ('');
   public cachedTime = 500;
   public quotesStreamIsOpened = false; //Status of subscription to the quotes stream
   public quotesData$ : Observable<IRate[]>; //Subsction to the quotes stream
   constructor(private quotesService: QuotesDataService) {}
   getQuotesStream(cahceTime = 500) {//Subscribe to the stream of quotes and handle update of quotes array
-    this.quotesData$ = this.quotesService.tapToQuotesStream(undefined, cahceTime);
+    this.quotesData$ = this.quotesService.tapToQuotesStream(undefined, cahceTime)
+/*       .pipe(
+        switchMap(data=> {
+          const filterArray = this.filterQuotesList.getRawValue().split(',');
+          if (filterArray[0].length>0) {
+            return of(data.filter(row=>filterArray.includes(row.symbol)))
+          } else {
+            return of (data)
+          }
+        })
+      ); */
   }
   resetCacheTime() {
     this.pauseQuotesStream();

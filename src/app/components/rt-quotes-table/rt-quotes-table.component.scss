@@ -137,9 +137,11 @@
   .filter {
     display: flex;
     justify-content: space-between;
+
     &__label {
       color: var(--color-text-header);
     }
+    
     &__text {
       margin-left: 1vw;
       width: 33vw;
@@ -190,10 +192,9 @@
 
         @include mobile {
           font-size: 13px;
-          min-width: 15vw;
+          min-width: 20vw;
         }
       }
-
 
       &-divider {
         width: var(--contentWidth);

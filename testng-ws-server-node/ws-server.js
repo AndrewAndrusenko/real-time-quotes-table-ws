@@ -62,7 +62,7 @@ function simulateRatesFlow ( timeToWork = 60000 * 30, intervalToEmit = 100, symb
     let symbols = []; //symbols used to mock the stream
     symbolList.symbolList.forEach((el) => symbols.push(...el)); //getting symbols lists
     symbols.forEach((symbol) => {
-      let changeQuote = Math.round(Math.random() * 0.55); //flag to generate or not quotes for the specific instrument
+      let changeQuote = Math.round(Math.random() * 0.51); //flag to generate or not quotes for the specific instrument
       if (changeQuote) {
         let rate = new Rate();
         rate.bid = Math.round(Math.random() * 100000) / 10000; //random bid price
