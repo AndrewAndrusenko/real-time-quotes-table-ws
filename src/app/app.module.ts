@@ -12,6 +12,7 @@ import { TestingPanelComponent } from './components/testing-panel/testing-panel.
 import { MatTooltipModule} from '@angular/material/tooltip'
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatExpansionModule} from '@angular/material/expansion';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 @NgModule({
   declarations: [
     AppComponent, 
@@ -27,7 +28,8 @@ import { MatExpansionModule} from '@angular/material/expansion';
     ReactiveFormsModule,
     MatInputModule,
     MatTooltipModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatAutocompleteModule
   ],
   providers: [
     provideAnimations()

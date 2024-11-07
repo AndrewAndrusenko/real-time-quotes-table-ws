@@ -1,39 +1,42 @@
-<mat-expansion-panel 
-  label="Manage testing server panel" 
-  (opened)="panelOpenStateSD = true"
-  (closed)="panelOpenStateSD = false" 
->
-  <mat-expansion-panel-header>
-    <mat-panel-title >
-      Test Server
-    </mat-panel-title>
-    <mat-panel-description>
-      Tap to {{panelOpenStateSD? 'hide': 'open'}} control elements
-    </mat-panel-description>
-    <label #status class="stream-status__label">{{quotesStreamIsStarted |async}}</label>
-  </mat-expansion-panel-header >
-
+<main>
+  <details open>
+  <summary>Test Server Panel</summary>
   <form [formGroup]="manageStreamForm">
-    <button mat-button
-      [ngClass]="status.innerHTML==='true'  ? 'form__button-stream stop-stream' : 'form__button-stream start-stream'" 
-      (click)="manageStream(status.innerHTML==='true' ? 'stop':'start');">
-      <mat-icon>
-        {{status.innerHTML=='true' ? 'cancel' : 'smart_display'}}
-      </mat-icon>
-      <span class="form__button-stream-text">
-        {{ (status.innerHTML=='true')? "Stop " : "Start" }} from the server
-      </span> 
-    </button>
+    <label #status class="stream-status__label">{{quotesStreamIsStarted |async}}</label>
+    
+    <button mat-button [disabled]="manageStreamForm.invalid"
+    [ngClass]="status.innerHTML==='true'  ? 'form__button-stream stop-stream' : 'form__button-stream start-stream'" 
+    (click)="manageStream(status.innerHTML==='true' ? 'stop':'start');">
+    <mat-icon>
+      {{status.innerHTML=='true' ? 'cancel' : 'smart_display'}}
+    </mat-icon>
+    <span class="form__button-stream-text">
+      {{ (status.innerHTML=='true')? "Stop " : "Start" }} ws test-server
+    </span> 
+  </button>
     <div class="form__parameters">
       <mat-form-field>
-        <input matInput placeholder="TimeToWork" matTooltip="Stream time in milliseconds" formControlName="timeToWork">
+        <input matInput placeholder="TimeToWork" matTooltip="Stream time in seconds" formControlName="timeToWork" id="time" autocomplete="on">
+        <mat-error *ngIf="timeToWork?.errors?.['required']">
+          Please set value
+        </mat-error>
+        <mat-error *ngIf="timeToWork?.errors?.['pattern']">
+          Only numbers
+        </mat-error>
       </mat-form-field>
       <mat-form-field>
         <input matInput placeholder="Interval" matTooltip="Emit interval in milliseconds" formControlName="intervalToEmit">
+        <mat-error *ngIf="interval?.errors?.['required']">
+          Please set value
+        </mat-error>
+        <mat-error *ngIf="interval?.errors?.['pattern']">
+          Only numbers
+        </mat-error>
       </mat-form-field>
       <mat-form-field>
-        <input matInput placeholder="SymbolQty" matTooltip="Instrument quantity in the stream" formControlName="symbolQty">
+        <input matInput  [readonly]="true" placeholder="SymbolQty" matTooltip="Instrument quantity in the stream" formControlName="symbolQty">
       </mat-form-field>
     </div>
   </form>
-</mat-expansion-panel>
+</details>
+</main>

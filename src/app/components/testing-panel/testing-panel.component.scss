@@ -1,12 +1,11 @@
 
 @import '../../../styles/mixins_media.scss';
-:host ::ng-deep  .mat-expansion-panel-body {
-  padding: 0 5px 5px !important;
+.mat-button-disabled {
+  background-color: red !important
 }
-.mat-expansion-panel {
+main {
   background-color:var(--background-color);
   width: var(--contentWidth);
-
 
   @include desktop {
     --contentWidth:60vw;
@@ -18,109 +17,102 @@
 
   @include mobile {
     --contentWidth:96vw;
-    // padding: 0 2px 2px;
-  
   }
- 
-  .mat-expansion-panel-header {
-    &:hover {
-      background-color:var(--background-color);
-    }
-
-    @include mobile {
-      height: 5vh;
-      font-size: 12px;
-    }
-
-    mat-panel-title {
-      @include mobile {
-        margin-right: 0;
-      }
-    }
-  }
-
-
-  .stream-status__label {
-    color: transparent;
-    width: 0.00005vw;
-    height: 0.0vh;
-    
-    @include mobile {
-      color: black;
-    }
-  }
-
-  form {
-    display:flex;
-    gap: 2vw;
-    
-    @include mobile {
-      display:grid;
-    }
-    
-    .form__button-stream {
-      transition: var(--transition-duration);
-      background-size: 200% auto;
-      color: var(--color-text-light);            
-      box-shadow: 0 0 20px var(--color-text-light);
+  details {
+    border-bottom: 2px groove rgb(229, 226, 226);
+    padding: 5px;
+   
+    summary {
+      border: 2px groove rgb(229, 226, 226);
+      cursor: pointer;
+      padding-left: 5px ;
       border-radius: var(--border-radius-large);
-      height: 5vh;
-      min-width: 200px;
-      width: 15vw;
-
-      @include tablet {
-        height: 4vh;
-      }
-
+      color: var(--color-text-header);
+    }
+    .stream-status__label {
+      color: transparent;
+      width: 0.00005vw;
+      height: 0.0vh;
+    }
+  
+    form {
+      display:flex;
+      gap: 1vw;
+      padding-top: 5px;
+  
       @include mobile {
-        min-width: 280px;
-        height: 5vh;
-        min-height: 30px;
-        line-height: 28px;
-      }
-
-      &.start-stream {
-        background-image: linear-gradient(to right, #00c6ff 0%, #0072ff  51%, #00c6ff  100%);
-      }
-
-      &.stop-stream {
-        background-image: linear-gradient(to right, #517fa4 0%, #243949  51%, #517fa4  100%);
-      }
-
-      &-text::after {
-        position: relative;
-        content: '';
-        width: 0px;
-        height: 2px;
-        display: block;
-        background: var(--color-text-light);
-        transition: var(--transition-duration);
-        top: -5px;
-        left: 50%;
-        translate: -50%;
+        display:grid;
       }
       
-      &-text:hover::after {
-        width: 70%;
+      .form__button-stream {
+        transition: var(--transition-duration);
+        background-size: 200% auto;
+        color: var(--color-text-light);            
+        box-shadow: 0 0 20px var(--color-text-light);
+        border-radius: var(--border-radius-large);
+        height: 5vh;
+        min-width: 200px;
+        max-height: 50px;
+        width: 16vw;
+  
+        @include tablet {
+          height: 4vh;
+        }
+  
+        @include mobile {
+          min-width: 280px;
+          height: 5vh;
+          min-height: 30px;
+          line-height: 28px;
+        }
+  
+        &.start-stream:disabled {
+          filter: opacity(40%);
+
+        }
+        &.start-stream {
+          background-image: linear-gradient(to right, #00c6ff 0%, #0072ff  51%, #00c6ff  100%);
+        }
+  
+        &.stop-stream {
+          background-image: linear-gradient(to right, #517fa4 0%, #243949  51%, #517fa4  100%);
+        }
+  
+        &-text::after {
+          position: relative;
+          content: '';
+          width: 0px;
+          height: 2px;
+          display: block;
+          background: var(--color-text-light);
+          transition: var(--transition-duration);
+          top: -2px;
+          left: 50%;
+          translate: -50%;
+        }
+        
+        &-text:hover::after {
+          width: 70%;
+        }
       }
+      .mat-form-field {
+        width: 7vw;
+        margin-right: 1vw;
+  
+        @include desktop {
+          width: 11vw;
+        }
+  
+        @include tablet {
+          width: 13vw;
+        }
+  
+        @include mobile {
+          width: 28vw;
+          margin-right: 2vw;
+        }
+      }
+  
     }
-    .mat-form-field {
-      width: 7vw;
-      margin-right: 1vw;
-
-      @include desktop {
-        width: 11vw;
-      }
-
-      @include tablet {
-        width: 13vw;
-      }
-
-      @include mobile {
-        width: 28vw;
-        margin-right: 2vw;
-      }
-    }
-
   }
 }

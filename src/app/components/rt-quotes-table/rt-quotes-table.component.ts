@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy,  Component,} from '@angular/core';
+import { ChangeDetectionStrategy,  Component} from '@angular/core';
 import { Observable, of, switchMap} from 'rxjs';
 import { QuotesDataService, IRate } from '../../services/quotes-data.service';
 import { FormControl } from '@angular/forms';
@@ -9,23 +9,28 @@ import { FormControl } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RTQuotesTableComponent {
-  // public filterQuotesList = new FormControl ('');
+  public filterQuotesList = new FormControl ('');
   public cachedTime = 500;
   public quotesStreamIsOpened = false; //Status of subscription to the quotes stream
   public quotesData$ : Observable<IRate[]>; //Subsction to the quotes stream
-  constructor(private quotesService: QuotesDataService) {}
+  constructor(private quotesService: QuotesDataService) {
+    this.quotesService.streamRestart$.asObservable().subscribe(restart=>restart&&this.quotesStreamIsOpened? this.resetCacheTime():null)
+  }
   getQuotesStream(cahceTime = 500) {//Subscribe to the stream of quotes and handle update of quotes array
     this.quotesData$ = this.quotesService.tapToQuotesStream(undefined, cahceTime)
-/*       .pipe(
+      .pipe(
         switchMap(data=> {
-          const filterArray = this.filterQuotesList.getRawValue().split(',');
+          const filterArray = this.filterQuotesList.getRawValue().toLocaleLowerCase().split(',').map(el=>el.trim());
           if (filterArray[0].length>0) {
-            return of(data.filter(row=>filterArray.includes(row.symbol)))
+            return of(data.filter(row=>filterArray.includes(row.symbol.toLocaleLowerCase())))
           } else {
             return of (data)
           }
         })
-      ); */
+      );
+  }
+  saveFilter() {
+    (document.getElementById("my-form") as HTMLFormElement).submit()
   }
   resetCacheTime() {
     this.pauseQuotesStream();

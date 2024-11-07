@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { map, throttleTime,  switchMap, pairwise } from 'rxjs/operators';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 export interface IRate {
   //Intreface for received quotes from server
@@ -14,15 +15,14 @@ export interface IRate {
   providedIn: 'root',
 })
 export class QuotesDataService { //Service to handle data stream
-  private quotesWS$: WebSocketSubject<IRate[]>;
+  public quotesWS$: WebSocketSubject<IRate[]>;
   private WS_ENDPOINT = environment.TEST_WS_ENDPOINT;
+  public streamRestart$ =new Subject<boolean> ()
   public quotesDataArray: IRate[] = []; // Quotes array to be displayed in the template
-  public filter$ = new BehaviorSubject ('');
-  private filter = this.filter$.asObservable().subscribe  
   //Connection to data provider server
   //param endpoint: data provider server address
   private connectToWSServer(endpoint = this.WS_ENDPOINT): boolean {
-    if (!this.quotesWS$ || this.quotesWS$.closed) {(this.quotesWS$ = webSocket(endpoint))}
+    if (!this.quotesWS$ || this.quotesWS$.closed) {this.quotesWS$ = webSocket(endpoint)}
     return this.quotesWS$.closed;
   }
   //tapToQuotesStrea - Connect to the server and prepare and return stream to manage incoming data
@@ -35,10 +35,6 @@ export class QuotesDataService { //Service to handle data stream
       map(([oldSet,newSet])=>newSet.concat(oldSet.filter(oldRate=> newSet.every(newRate=>!newRate.symbol.includes(oldRate.symbol))))),
       throttleTime(cachingTime), 
       switchMap(newSetFull => {
-/*         const filterArray = this.filter$.getValue().split(',')
-        console.log('',filterArray);
-        if (filterArray[0].length>0) {newSetFull = newSetFull.filter(rate=>filterArray.includes(rate.symbol))} ;
-        console.log('',newSetFull); */
         newSetFull.forEach(newRate=> {
           const index = this.quotesDataArray.findIndex(rateRow=>rateRow.symbol===newRate.symbol)
           if (index > -1)  {

@@ -2,6 +2,8 @@
   <section class="testing-panel">
     <app-testing-panel></app-testing-panel>
   </section>
+  <details  open>
+  <summary>Connection Panel</summary>
   <section class="connection-panel">
     <button  mat-button class="connection-panel__button"    
       [ngClass]="quotesStreamIsOpened? 'stop-connection' : 'start-connection' " 
@@ -19,12 +21,14 @@
       </button>
     </span>
   </section>
-  <section class="filter">
-<!--     <mat-form-field>
-      <label class="filter__label" for="filterQuotesList">Filter: </label>
-      <input matInput class="filter__text" [formControl]="filterQuotesList">
-    </mat-form-field> -->
-  </section>
+  </details>
+  <iframe name="💾" style="display:none" src="about:blank"></iframe>
+  <form target="💾" action="about:blank" id="my-form"  autocomplete="on">
+    <mat-form-field  class="filter">
+      <mat-label >Filter - symbols separated by comma. Click/tap to add filter to autofill </mat-label>
+      <input matInput [formControl]="filterQuotesList" (click)="saveFilter()" id="filter-int" class="filter-input">
+    </mat-form-field>
+  </form>
   <section class="quotes-table">
     <li class="quotes-table quotes-table__header">
       <span class="quotes-table__header-col">Symbol</span>
