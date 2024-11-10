@@ -1,19 +1,21 @@
 <main>
   <details open>
-  <summary>Test Server Panel</summary>
+  <summary>Test Server Panel - 
+    Server Status: {{this.testingService.webSocketTest&&!this.testingService.webSocketTest.closed? 'Connected':'Disconnected'}} 
+    <!-- <button mat-button (click)="manageStream('stop')">Stop</button> -->
+  </summary>
   <form [formGroup]="manageStreamForm">
     <label #status class="stream-status__label">{{quotesStreamIsStarted |async}}</label>
-    
     <button mat-button [disabled]="manageStreamForm.invalid"
-    [ngClass]="status.innerHTML==='true'  ? 'form__button-stream stop-stream' : 'form__button-stream start-stream'" 
-    (click)="manageStream(status.innerHTML==='true' ? 'stop':'start');">
-    <mat-icon>
-      {{status.innerHTML=='true' ? 'cancel' : 'smart_display'}}
-    </mat-icon>
-    <span class="form__button-stream-text">
-      {{ (status.innerHTML=='true')? "Stop " : "Start" }} ws test-server
-    </span> 
-  </button>
+      [ngClass]="status.innerHTML==='true'  ? 'form__button-stream stop-stream' : 'form__button-stream start-stream'" 
+      (click)="manageStream(status.innerHTML==='true' ? 'stop':'start');">
+      <mat-icon>
+        {{status.innerHTML=='true' ? 'cancel' : 'smart_display'}}
+      </mat-icon>
+      <span class="form__button-stream-text">
+        {{ (status.innerHTML=='true')? "Stop " : "Start" }} ws test-server
+      </span> 
+    </button>
     <div class="form__parameters">
       <mat-form-field>
         <input matInput placeholder="TimeToWork" matTooltip="Stream time in seconds" formControlName="timeToWork" id="time" autocomplete="on">

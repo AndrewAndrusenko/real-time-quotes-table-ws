@@ -38,7 +38,8 @@ main {
     form {
       display:flex;
       gap: 1vw;
-      padding-top: 5px;
+      margin-top: 2vh;
+
   
       @include mobile {
         display:grid;
@@ -54,9 +55,10 @@ main {
         min-width: 200px;
         max-height: 50px;
         width: 16vw;
-  
+        
         @include tablet {
-          height: 4vh;
+          max-height: 50px;
+          height: 5vh;
         }
   
         @include mobile {

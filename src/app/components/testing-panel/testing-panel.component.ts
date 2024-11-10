@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { TestingMngService } from 'src/app/services/testing-mng.service';
@@ -12,8 +12,9 @@ import { TestingMngService } from 'src/app/services/testing-mng.service';
 export class TestingPanelComponent {
   public quotesStreamIsStarted:Observable<boolean> =  this.testingService.streamStarted$.asObservable()   //Status of the quotes stream
   public manageStreamForm:FormGroup;
+  public serverStatus:boolean = this.testingService.webSocketTest !== undefined && !this.testingService.webSocketTest.closed
   public panelOpenStateSD:boolean //status of extension panel  
-  constructor( public testingService: TestingMngService, private ref: ChangeDetectorRef, private fb:FormBuilder) {
+  constructor( public testingService: TestingMngService, private fb:FormBuilder) {
     this.manageStreamForm = this.fb.group ({
       cmd: ['start'],
       timeToWork: [60, { validators:  [Validators.required,Validators.pattern('[0-9]*')]}],
@@ -21,9 +22,10 @@ export class TestingPanelComponent {
       symbolQty: [500]
     })
   }
+
   manageStream(cmd: string) {
     this.manageStreamForm.get('cmd').patchValue(cmd)
-    this.testingService.createTestingStream(this.manageStreamForm.value);
+    this.testingService.sendMessageToServer(this.manageStreamForm.value);
   }
  get interval() {return this.manageStreamForm.get('intervalToEmit')}
  get timeToWork() {return this.manageStreamForm.get('timeToWork')}

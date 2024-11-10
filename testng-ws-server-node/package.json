@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "rt-mock-ws-server": "node ws-server",
-    "nodemon rt-mock-ws-server": "nodemon --signal SIGINT ws-server"
+    "nodemon rt-mock-ws-server": "nodemon --signal SIGTERM ws-server"
   },
   "keywords": [],
   "author": "",

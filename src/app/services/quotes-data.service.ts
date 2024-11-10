@@ -22,7 +22,7 @@ export class QuotesDataService { //Service to handle data stream
   //Connection to data provider server
   //param endpoint: data provider server address
   private connectToWSServer(endpoint = this.WS_ENDPOINT): boolean {
-    if (!this.quotesWS$ || this.quotesWS$.closed) {this.quotesWS$ = webSocket(endpoint)}
+    if (!this.quotesWS$ || this.quotesWS$.closed) {this.quotesWS$ = webSocket(endpoint+'/front')}
     return this.quotesWS$.closed;
   }
   //tapToQuotesStrea - Connect to the server and prepare and return stream to manage incoming data

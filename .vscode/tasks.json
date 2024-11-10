@@ -45,6 +45,16 @@
       "problemMatcher": [],
       "label": "npm: command - testng-ws-server-node",
       "detail": "node ws-server"
+    },
+    {
+      "type": "npm",
+      "script": "nodemon rt-mock-ws-server",
+      "path": "testng-ws-server-node",
+      "problemMatcher": [
+        "$eslint-stylish"
+      ],
+      "label": "npm: nodemon rt-mock-ws-server - testng-ws-server-node",
+      "detail": "nodemon --signal SIGILL ws-server"
     }
   ]
 }
