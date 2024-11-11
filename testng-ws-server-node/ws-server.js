@@ -1,80 +1,65 @@
-const WebSocket = require("ws");
-const http = require("http");
-const symbolList = require("./symbols-list.js"); //list of instrumets to mock data stream
-const { last } = require("rxjs");
-class Rate {
-  time; //quotes time
-  symbol; //instrument code
-  bid; //buy price
-  ask; //sell price
-}
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+import process from 'node:process'
+import http from "http";
+import {WebSocketServer } from 'ws';
+import * as quotesStreamHandlers from './quotes-stream-handlers.js'
+import {getMoexSharesQuotesLast} from './market-quotes-load.js'
+const PORT = 3003;
 
-const symbolToTrack = "BEN-RM"; //instrument to track through console log
-var wsStreamMockInt; // interval to mock data stream from server
+process.stdin.resume();
+process.on('exit', () => console.log('exit. clients connected:',wsServer.clients.size));
+process.on('uncaughtException',() => console.log('uncaughtException')); 
+process.on('SIGINT', () => {
+  console.log('SIGINT');
+  closeWsServer();
+  setTimeout(() => process.exit(1), 500);
+});
 
 const httpServer = http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end("WS-Serever is running");
 });
+httpServer.on('close', ()=>{console.log('http close')});
+httpServer.on('connection', ()=>{console.log('http connection')});
+httpServer.on('error', ()=>{console.log('http error')});
+httpServer.listen(PORT, () => { //sever starting
+  console.log(`WebSocket server is listening on port ${PORT}`);
+  getMoexSharesQuotesLast(); //update moex quotes with last open prices via moex api
+});
 
-const wsServer = new WebSocket.Server({ server: httpServer }); //webSocket 
+const wsServer = new WebSocketServer ({ server: httpServer }); 
+wsServer.on('close', ()=> console.log('server closed'));
+wsServer.on('error;', (err)=> console.log('error', err));
 wsServer.on("connection", async (ws, req) => {
-  Array.from(wsServer.clients).pop().manage=req.url; //adding property to differ managing stream sockets from sockets receiving only quotes stream
+  console.log('req.url',req.url);
+  let newClient = Array.from(wsServer.clients).pop()
+  newClient.manage=req.url; //adding property to differ managing stream sockets from sockets receiving only quotes stream 
+  newClient.id=req.headers['sec-websocket-key']
+  ws.on('error',(event)=>{console.log('ev',event);})
   ws.on("close", client =>  console.log(`Client has disconnected: ${client}`));
   ws.on("message", (message) => { // handle commands sent to server to manage streams of quotes
     let cmdIns = JSON.parse(message.toString());
+    console.log(cmdIns);
     switch (cmdIns.cmd) {
-      case "start": //start new stream and stop existing
-        typeof wsStreamMockInt !== "undefined"? clearInterval(wsStreamMockInt) : null; // stop intervals from emmision
-        typeof ws_timeout !== "undefined" ? clearTimeout(ws_timeout) : null; // stop times to stop emmision
-        simulateRatesFlow( cmdIns.timeToWork, cmdIns.intervalToEmit, cmdIns.symbolQty ); //create new stream of quotes
+      case "start": //start new stream and stop 
+      console.log('start new',);
+        quotesStreamHandlers.stopQuotesStreams();
+        quotesStreamHandlers.simulateRatesFlow(wsServer, cmdIns.timeToWork, cmdIns.intervalToEmit, cmdIns.symbolQty ); //create new stream of quotes
         break;
       case "stop": //stop stream of quotes
-        stopConnection('stopped by command');
+      quotesStreamHandlers.stopQuotesStreams();
+      quotesStreamHandlers.shareConnectionStatus(wsServer,'stream_stopped');
       break;
     }
   });
 });
-const PORT = 3003;
-httpServer.listen(PORT, () => { //sever starting
-  console.log(`WebSocket server is listening on port ${PORT}`);
-});
 
-function shareConnectionStatus (msg) {
-  wsServer.clients.forEach(client => client.readyState === WebSocket.OPEN && client.manage==='/manage_connection'? client.send(msg):null)
-}
-
-function stopConnection (msg) {
-  typeof wsStreamMockInt !== "undefined"? clearInterval(wsStreamMockInt) : null; // stop intervals from emmision
-  typeof ws_timeout !== "undefined" ? clearTimeout(ws_timeout) : null; // stop times to stop emmision;
-  shareConnectionStatus('stream_stopped')
-  console.log(msg);
-}
-
-//function to mock quotes data stream from a websocket server
-//param timeToWork - time of intereval or time of server working and streaming data
-//param intervalToEmit - interval of emmision. frequency of emits
-//param symbolQty - quantity of instruments inside stream
-function simulateRatesFlow ( timeToWork = 60000 * 30, intervalToEmit = 100, symbolQty = 500) {
-  shareConnectionStatus ('stream_started');
-  wsStreamMockInt = setInterval(() => {
-    let ratesSet = []; // quotes set to be emited from the mock server
-    let symbols = []; //symbols used to mock the stream
-    symbolList.symbolList.forEach((el) => symbols.push(...el)); //getting symbols lists
-    symbols.forEach((symbol) => {
-      let changeQuote = Math.round(Math.random() * 0.51); //flag to generate or not quotes for the specific instrument
-      if (changeQuote) {
-        let rate = new Rate();
-        rate.bid = Math.round(Math.random() * 100000) / 10000; //random bid price
-        rate.ask = Math.round(rate.bid * (1 + Math.random() / 10) * 10000) / 10000; // random ask price = random bid + random deviation from bid
-        rate.symbol = symbol;
-        rate.time = new Date();
-        rate.symbol === symbolToTrack? console.log(`${new Date(rate.time).getSeconds()}:${new Date(rate.time).getMilliseconds()} - ${rate.ask}`) : null;
-        ratesSet.push(rate);
-      }
-    });
-    console.log("emitted: ",ratesSet.length);
-    wsServer.clients.forEach(client => client.readyState === WebSocket.OPEN && client.manage !=='/manage_connection'? client.send(JSON.stringify(ratesSet)) : null);
-  }, intervalToEmit);
-  ws_timeout = setTimeout(() => stopConnection('stopped by timer'), timeToWork);//setting timer to stop emmision after given time
+function closeWsServer () {
+  console.log(' wsServer.close()', wsServer.clients.size);
+  wsServer.clients.forEach(client =>{
+    console.log('id',client.id);
+    client.close()
+  });
+  wsServer.close();
+  quotesStreamHandlers.shareConnectionStatus(wsServer, 'closeWsServer')
 }

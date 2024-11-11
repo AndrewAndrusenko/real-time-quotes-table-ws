@@ -1,0 +1,14 @@
+{
+  "signal": "SIGHUP"
+  ,
+  "events": {
+    "restart": "node nodemon-restart"
+  },
+  "ignore": [
+    ".git",
+    "node_modules"
+  ],
+  "watch": [
+    "**/*"
+  ]
+}

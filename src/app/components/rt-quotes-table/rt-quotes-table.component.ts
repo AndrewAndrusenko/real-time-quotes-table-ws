@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { ChangeDetectionStrategy,  Component} from '@angular/core';
 import { Observable, of, switchMap} from 'rxjs';
 import { QuotesDataService, IRate } from '../../services/quotes-data.service';
@@ -13,19 +14,16 @@ export class RTQuotesTableComponent {
   public cachedTime = 500;
   public quotesStreamIsOpened = false; //Status of subscription to the quotes stream
   public quotesData$ : Observable<IRate[]>; //Subsction to the quotes stream
-  constructor(private quotesService: QuotesDataService) {
-    this.quotesService.streamRestart$.asObservable().subscribe(restart=>restart&&this.quotesStreamIsOpened? this.resetCacheTime():null)
+  constructor(public quotesService: QuotesDataService) {}
+  ngOnInit(): void {
+    this.quotesService.connectionOk$.asObservable().subscribe(status=>this.quotesStreamIsOpened=status )
   }
   getQuotesStream(cahceTime = 500) {//Subscribe to the stream of quotes and handle update of quotes array
     this.quotesData$ = this.quotesService.tapToQuotesStream(undefined, cahceTime)
       .pipe(
         switchMap(data=> {
           const filterArray = this.filterQuotesList.getRawValue().toLocaleLowerCase().split(',').map(el=>el.trim());
-          if (filterArray[0].length>0) {
-            return of(data.filter(row=>filterArray.includes(row.symbol.toLocaleLowerCase())))
-          } else {
-            return of (data)
-          }
+          return of(filterArray[0].length>0? data.filter(row=>filterArray.includes(row.symbol.toLocaleLowerCase())) : data) 
         })
       );
   }
@@ -33,13 +31,13 @@ export class RTQuotesTableComponent {
     (document.getElementById("my-form") as HTMLFormElement).submit()
   }
   resetCacheTime() {
-    this.pauseQuotesStream();
+    this.disconnectedFromStream();
     this.getQuotesStream(this.cachedTime)
   }
   trackByfn(index: number, item: IRate) { //trackBy to avoid whole list rendering on update
     return item.symbol + item.time; // quote has to be updated in the view if for given symbol changed time stamp
   }
-  pauseQuotesStream() {// stop receiving quotes data
-    this.quotesData$ = null;
+  disconnectedFromStream() {// stop receiving quotes data
+    this.quotesService.disconnectFromServer();
   }
 }

@@ -6,9 +6,8 @@
   <summary>Connection Panel</summary>
   <section class="connection-panel">
     <button  mat-button class="connection-panel__button"    
-      [ngClass]="quotesStreamIsOpened? 'stop-connection' : 'start-connection' " 
-      (click)="quotesStreamIsOpened ? pauseQuotesStream() : getQuotesStream(cachedTime);
-              quotesStreamIsOpened = !quotesStreamIsOpened" >
+      [ngClass]="(this.quotesService.connectionOk$ |async)?  'stop-connection' : 'start-connection' " 
+      (click)="quotesStreamIsOpened ? disconnectedFromStream() : getQuotesStream(cachedTime);" >
       <mat-icon class="connection-panel__button-icon">{{quotesStreamIsOpened ? 'cast_connected' : 'cast'}}</mat-icon>
       <span class="connection-panel__button-text">{{ quotesStreamIsOpened ? "Stop " : "Connect to" }} WS</span>
     </button>

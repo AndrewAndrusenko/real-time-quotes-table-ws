@@ -2,15 +2,18 @@
   "name": "websocket-sever-aaa",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "rt-mock-ws-server": "node ws-server"
-
+    "rt-mock-ws-server": "node ws-server",
+    "nodemon rt-mock-ws-server": "nodemon --signal SIGTERM ws-server"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "node-fetch": "^3.3.2",
+    "nodemon": "^3.1.7",
+    "rxjs": "^7.8.1",
     "ws": "^8.18.0"
   }
 }
