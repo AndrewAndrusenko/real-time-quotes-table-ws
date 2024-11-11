@@ -18,29 +18,29 @@ main {
   @include mobile {
     --contentWidth:96vw;
   }
-  details {
+  .mng-panel {
     border-bottom: 2px groove rgb(229, 226, 226);
     padding: 5px;
    
-    summary {
+    &__header {
       border: 2px groove rgb(229, 226, 226);
       cursor: pointer;
       padding-left: 5px ;
       border-radius: var(--border-radius-large);
       color: var(--color-text-header);
+
+      &__status {
+        padding: 5px 0 5px 0;
+      }
+      &__status.Connected {
+        color: #0072ff;
+      }
     }
-    .stream-status__label {
-      color: transparent;
-      width: 0.00005vw;
-      height: 0.0vh;
-    }
-  
     form {
       display:flex;
-      gap: 1vw;
+      justify-content: space-between;
       margin-top: 2vh;
 
-  
       @include mobile {
         display:grid;
       }

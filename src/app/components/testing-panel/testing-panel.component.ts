@@ -12,7 +12,7 @@ import { TestingMngService } from 'src/app/services/testing-mng.service';
 export class TestingPanelComponent {
   public quotesStreamIsStarted:Observable<boolean> =  this.testingService.streamStarted$.asObservable()   //Status of the quotes stream
   public manageStreamForm:FormGroup;
-  public serverStatus:boolean = this.testingService.webSocketTest !== undefined && !this.testingService.webSocketTest.closed
+  public serverStatus:boolean = this.testingService.webSocketTest&&!this.testingService.webSocketTest.closed
   public panelOpenStateSD:boolean //status of extension panel  
   constructor( public testingService: TestingMngService, private fb:FormBuilder) {
     this.manageStreamForm = this.fb.group ({
@@ -23,7 +23,8 @@ export class TestingPanelComponent {
     })
   }
 
-  manageStream(cmd: string) {
+  manageStream() {
+    const cmd = this.testingService.streamStarted$.getValue()? 'stop':'start'
     this.manageStreamForm.get('cmd').patchValue(cmd)
     this.testingService.sendMessageToServer(this.manageStreamForm.value);
   }

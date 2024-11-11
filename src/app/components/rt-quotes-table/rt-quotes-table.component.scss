@@ -165,10 +165,16 @@ input:-webkit-autofill:focus {
       &-col {
         min-width: 5vw;
         color: var(--color-text-header);
-        
+        @include desktop {
+          min-width: 8vw;
+        }
         @include mobile {
           font-size: 13px;
           min-width: 15vw;
+        }
+        @include mobile {
+          font-size: 13px;
+          min-width: 20vw;
         }
       }
     }
