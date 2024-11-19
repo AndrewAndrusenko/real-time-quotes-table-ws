@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import {promises as fs} from 'fs';
-
+import process from 'node:process';
 class Rate {
   time; //quotes time
   symbol; //instrument code
@@ -9,9 +9,9 @@ class Rate {
 }
 var wsStreamMockInt; // interval to mock data stream from server
 var ws_timeout;
+process.send = process.send || console.log 
 
 export function shareConnectionStatus (wsServer, msg) {
-  console.log('wsServer.clients.size',wsServer.clients.size);
   wsServer.clients.forEach(client => client.readyState === 1 && client.manage==='/manage_connection'? client.send(JSON.stringify({message:msg})):null)
 }
 
@@ -23,12 +23,15 @@ export function stopQuotesStreams () {
 //param timeToWork - time of intereval or time of server working and streaming data
 //param intervalToEmit - interval of emmision. frequency of emits
 //param symbolQty - quantity of instruments inside stream
-export async function simulateRatesFlow (wsServer, timeToWork = 60000 * 30, intervalToEmit = 100) {
+export async function simulateRatesFlow (wsServer, timeToWork = 60 * 30, intervalToEmit = 100) {
+  timeToWork=timeToWork||60*30;
+  intervalToEmit=intervalToEmit||100;
   shareConnectionStatus (wsServer, 'stream_started');
   let symbols
   const data = await fs.readFile('quotes.json')
   symbols = JSON.parse(data)
-  console.log(symbols.length);
+  process.send(['Stream has been launched for',Number(timeToWork),'sec with', Number(intervalToEmit), 'ms interval'])
+  console.log('symbols.length',symbols.length);
   wsStreamMockInt = setInterval(() => {
     let ratesSet = []; // quotes set to be emited from the mock server
     symbols.forEach((symbol) => {
@@ -42,7 +45,7 @@ export async function simulateRatesFlow (wsServer, timeToWork = 60000 * 30, inte
         ratesSet.push(rate);
       }
     });
-    // console.log("emitted: ",ratesSet.length);
+    // process.send(['emitted:',ratesSet.length]);
     wsServer.clients.forEach(client => client.readyState === 1 && client.manage !=='/manage_connection'? client.send(JSON.stringify(ratesSet)) : null);
   }, intervalToEmit);
   ws_timeout = setTimeout(() => stopQuotesStreams('stopped by timer'), timeToWork*1000);//setting timer to stop emmision after given time d

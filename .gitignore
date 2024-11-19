@@ -42,3 +42,4 @@ testem.log
 Thumbs.db
 node_modules
 testng-ws-server-node/.gitignore
+testng-ws-server-node/ignore/*

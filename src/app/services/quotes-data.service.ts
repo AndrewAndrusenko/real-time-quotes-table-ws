@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { map, throttleTime,  switchMap, pairwise } from 'rxjs/operators';
-import { Observable, of, Subject } from 'rxjs';
+import { map, throttleTime,  switchMap, pairwise, retry, repeat } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 export interface IRate {
   //Intreface for received quotes from server
@@ -16,7 +16,7 @@ export interface IRate {
 })
 export class QuotesDataService { //Service to handle data stream
   private quotesWS$: WebSocketSubject<IRate[]>;
-  public connectionOk$ = new Subject<boolean> () //Connection status for UI
+  public connectionOk$ = new BehaviorSubject <boolean> (false) //Connection status for UI
   private connectionToSwitchMap = new Subject<boolean> () //Connection status for switchMap. It closes with quotesWS$ and doesn't allow to notify UI that connection is closed
   public quotesDataArray: IRate[] = []; // Quotes array to be displayed in the template
 
@@ -30,11 +30,16 @@ export class QuotesDataService { //Service to handle data stream
       closingObserver:{next:()=>console.log('closing')},
       closeObserver:{next:(event)=>{
         console.log('closed front connection',event);
+        // this.connectionOk$.getValue()? setTimeout(() => this.connectToWSServer(), 200) : null;
         this.connectionOk$.next(false)
-        this.disconnectFromServer();
+        // this.disconnectFromServer();
       }}
     });
-    this.quotesWS$.subscribe({error:err=>console.log('error',err)});
+    this.quotesWS$.pipe(
+/*       retry({delay:environment.RETRY_INTERVAL }), 
+      repeat({ delay: environment.RETRY_INTERVAL }) */
+    )
+    .subscribe({error:err=>console.log('error',err)});
     return this.connectionToSwitchMap.asObservable();
   }
 

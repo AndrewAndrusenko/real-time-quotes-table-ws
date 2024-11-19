@@ -4,6 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "rt cmd": "node wss",
     "rt-mock-ws-server": "node ws-server",
     "nodemon rt-mock-ws-server": "nodemon --signal SIGTERM ws-server"
   },

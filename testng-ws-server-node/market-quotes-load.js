@@ -2,15 +2,16 @@
 /* eslint-disable no-prototype-builtins */
 
 import {fromFetch} from 'rxjs/fetch';
-import {switchMap, of, from,forkJoin, filter, catchError } from 'rxjs';
+import {switchMap, of, from,forkJoin, filter, catchError,map } from 'rxjs';
 import fetch from "node-fetch";
 import {promises as fs} from 'fs';
+import process from 'node:process'
+
 globalThis.fetch = fetch;
 const switchResult =  switchMap(response => {return response.ok? response.json() : of({ error: true, message: `Error ${ response.status }`})});
+process.send = process.send || console.log 
 
-export async function getMoexSharesQuotesLast () {
-  const quotesData = await fs.readFile("quotes.json",'utf8');
-  let dateLoaded = quotesData? JSON.parse (quotesData)[0].TRADEDATE : undefined;
+export function getMoexSharesQuotesLast () {
   const issUrl = new URL('iss/history/engines/stock/markets/shares/securities.json?','https://iss.moex.com/');
   const params = new URLSearchParams({
     'start':0,
@@ -20,15 +21,16 @@ export async function getMoexSharesQuotesLast () {
     'limit':1
   });
   issUrl.search = params;
-  fromFetch(issUrl.href)
-  .pipe (
-    switchResult,
-    filter (data=> data[1].history[0].TRADEDATE !== dateLoaded),
-    switchMap(data=> loadMarketDataMOEXiss(dateLoaded=data[1].history[0].TRADEDATE, data[1]['history.cursor'][0].TOTAL))
-  ).subscribe (()=>{
-    console.log('Moex shares prices are saved for ',dateLoaded);
-  }); 
+  return forkJoin ({
+    lastDateIss: fromFetch(issUrl.href).pipe(switchResult),
+    dateLoaded: from(fs.readFile("quotes.json",'utf8')).pipe(map(data=>data? JSON.parse(data)[0].TRADEDATE:''))
+  }).pipe (
+    filter (data=> data.lastDateIss[1].history[0].TRADEDATE !== data.dateLoaded),
+    switchMap(data=> loadMarketDataMOEXiss(data.lastDateIss[1].history[0].TRADEDATE, data.lastDateIss[1]['history.cursor'][0].TOTAL)),
+    switchMap((result)=>of(`Moex shares prices are saved for ${result.dateSaved}`))
+  )
 }
+
 function loadMarketDataMOEXiss (dataToLoad='2024-10-22',rowsToLoad=592 ) {
    const issUrl = new URL('iss/history/engines/stock/markets/shares/securities.json?','https://iss.moex.com/');
    const params = new URLSearchParams({
@@ -46,7 +48,12 @@ function loadMarketDataMOEXiss (dataToLoad='2024-10-22',rowsToLoad=592 ) {
     issFetchs.push(fromFetch(issUrl.href).pipe(switchResult))
   };
   return forkJoin(issFetchs).pipe(
-    switchMap(result=> {from(fs.writeFile ('./quotes.json',JSON.stringify(result.map(el=>el[1].history).flat()), (err) => {if (err) throw(err)} ))}),
+    switchMap(result=> {  
+      return forkJoin ({
+        dateSaved: of(result[0][1].history[0].TRADEDATE),
+        dataSaved : from(fs.writeFile ('./quotes.json',JSON.stringify(result.map(el=>el[1].history).flat()), (err) => {if (err) throw(err)} ))
+      })
+    }),
     catchError(err => {
       console.error(err);
       return of({ error: true, message: err.message })
