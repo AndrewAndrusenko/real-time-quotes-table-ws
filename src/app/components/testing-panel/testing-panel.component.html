@@ -4,8 +4,9 @@
     Test Server Panel - Server Status:
     <span 
       class="mng-panel__header__status" 
-      [ngClass]="this.testingService.webSocketTest&&!this.testingService.webSocketTest.closed? 'Connected':'Disconnected'">
-      {{this.testingService.webSocketTest&&!this.testingService.webSocketTest.closed? ' Connected':' Disconnected'}}</span>
+      [ngClass]="(this.testingService.serverConnection$ | async)? 'Connected':'Disconnected'">
+      {{(this.testingService.serverConnection$ | async)? ' Connected':' Disconnected'}}
+    </span>
   </summary>
   <form [formGroup]="manageStreamForm">
     <button #manage mat-button [disabled]="manageStreamForm.invalid" 

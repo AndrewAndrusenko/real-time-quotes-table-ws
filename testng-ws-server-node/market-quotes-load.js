@@ -6,7 +6,7 @@ import {switchMap, of, from,forkJoin, filter, catchError,map } from 'rxjs';
 import fetch from "node-fetch";
 import {promises as fs} from 'fs';
 import process from 'node:process'
-
+export const quotesPath = './data/quotes.json'
 globalThis.fetch = fetch;
 const switchResult =  switchMap(response => {return response.ok? response.json() : of({ error: true, message: `Error ${ response.status }`})});
 process.send = process.send || console.log 
@@ -23,7 +23,7 @@ export function getMoexSharesQuotesLast () {
   issUrl.search = params;
   return forkJoin ({
     lastDateIss: fromFetch(issUrl.href).pipe(switchResult),
-    dateLoaded: from(fs.readFile("quotes.json",'utf8')).pipe(map(data=>data? JSON.parse(data)[0].TRADEDATE:''))
+    dateLoaded: from(fs.readFile(quotesPath,'utf8')).pipe(map(data=>data? JSON.parse(data)[0].TRADEDATE:''))
   }).pipe (
     filter (data=> data.lastDateIss[1].history[0].TRADEDATE !== data.dateLoaded),
     switchMap(data=> loadMarketDataMOEXiss(data.lastDateIss[1].history[0].TRADEDATE, data.lastDateIss[1]['history.cursor'][0].TOTAL)),
@@ -51,7 +51,7 @@ function loadMarketDataMOEXiss (dataToLoad='2024-10-22',rowsToLoad=592 ) {
     switchMap(result=> {  
       return forkJoin ({
         dateSaved: of(result[0][1].history[0].TRADEDATE),
-        dataSaved : from(fs.writeFile ('./quotes.json',JSON.stringify(result.map(el=>el[1].history).flat()), (err) => {if (err) throw(err)} ))
+        dataSaved : from(fs.writeFile (quotesPath, JSON.stringify(result.map(el=>el[1].history).flat()), (err) => {if (err) throw(err)} ))
       })
     }),
     catchError(err => {

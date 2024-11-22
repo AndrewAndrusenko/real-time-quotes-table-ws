@@ -9,7 +9,10 @@ const PORT = 3003;
 var serverStatus = 'none';
 process.send = process.send || console.log 
 process.stdin.resume();
-process.on('SIGINT',() => {}); 
+process.on('SIGINT',() => {
+  process.send? null:process.exit(0)
+
+}); 
 process.on('uncaughtException',(err) => {
   process.send(['uncaughtException -',err]); 
   process.exit(1);
@@ -54,7 +57,6 @@ function closeWsServer (msg) {
   wsServer.close();
   httpServer.close();
 }
-
 const httpServer = http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end("WS-Serever is running");

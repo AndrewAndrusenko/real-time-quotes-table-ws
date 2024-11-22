@@ -17,7 +17,7 @@ export class TestingPanelComponent {
   constructor( public testingService: TestingMngService, private fb:FormBuilder) {
     this.manageStreamForm = this.fb.group ({
       cmd: ['start'],
-      timeToWork: [60, { validators:  [Validators.required,Validators.pattern('[0-9]*')]}],
+      timeToWork: [5, { validators:  [Validators.required,Validators.pattern('[0-9]*')]}],
       intervalToEmit: [50,{ validators:  [Validators.required,Validators.pattern('[0-9]*')]}],
       symbolQty: [500]
     })

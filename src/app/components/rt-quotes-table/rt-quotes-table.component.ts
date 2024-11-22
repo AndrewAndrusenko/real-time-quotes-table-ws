@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { ChangeDetectionStrategy,  Component} from '@angular/core';
-import { Observable, of, switchMap} from 'rxjs';
+import { filter, Observable, of, Subscription, switchMap,} from 'rxjs';
 import { QuotesDataService, IRate } from '../../services/quotes-data.service';
 import { FormControl } from '@angular/forms';
 @Component({
@@ -12,14 +12,23 @@ import { FormControl } from '@angular/forms';
 export class RTQuotesTableComponent {
   public filterQuotesList = new FormControl ('');
   public cachedTime = 500;
-  public quotesStreamIsOpened = false; //Status of subscription to the quotes stream
   public quotesData$ : Observable<IRate[]>; //Subsction to the quotes stream
+  private subsriptions = new Subscription ();
   constructor(public quotesService: QuotesDataService) {}
   ngOnInit(): void {
-    this.quotesService.connectionOk$.asObservable().subscribe(status=>this.quotesStreamIsOpened=status )
+    this.subsriptions.add(this.quotesService.connectionOk$.asObservable().pipe(filter(st=>st===true)).subscribe(()=>{this.getQuotesStream(this.cachedTime)}));
+  }
+  ngOnDestroy(): void {
+    this.subsriptions.unsubscribe();
+  }
+  manageStream () {
+    this.quotesService.connectionOk$.getValue()? this.disconnectedFromStream() : this.quotesService.connectToWSServer()
+  }
+  resetCacheTime() {
+    this.getQuotesStream(this.cachedTime)
   }
   getQuotesStream(cahceTime = 500) {//Subscribe to the stream of quotes and handle update of quotes array
-    this.quotesData$ = this.quotesService.tapToQuotesStream(undefined, cahceTime)
+    this.quotesData$ = this.quotesService.tapToQuotesStream(cahceTime)
       .pipe(
         switchMap(data=> {
           const filterArray = this.filterQuotesList.getRawValue().toLocaleLowerCase().split(',').map(el=>el.trim());
@@ -27,17 +36,13 @@ export class RTQuotesTableComponent {
         })
       );
   }
-  saveFilter() {
-    (document.getElementById("my-form") as HTMLFormElement).submit()
-  }
-  resetCacheTime() {
-    this.disconnectedFromStream();
-    this.getQuotesStream(this.cachedTime)
+  disconnectedFromStream() {// stop receiving quotes data
+    this.quotesService.disconnectFromServer();
   }
   trackByfn(index: number, item: IRate) { //trackBy to avoid whole list rendering on update
     return item.symbol + item.time; // quote has to be updated in the view if for given symbol changed time stamp
   }
-  disconnectedFromStream() {// stop receiving quotes data
-    this.quotesService.disconnectFromServer();
+  saveFilter() {
+    (document.getElementById("my-form") as HTMLFormElement).submit()
   }
 }

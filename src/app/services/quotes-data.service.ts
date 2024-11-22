@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { map, throttleTime,  switchMap, pairwise, retry, repeat } from 'rxjs/operators';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
+import { map, throttleTime,  switchMap, pairwise, filter, timeout, catchError, retry ,repeat} from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 export interface IRate {
   //Intreface for received quotes from server
@@ -10,57 +10,83 @@ export interface IRate {
   symbol: string; // instrument code
   bid: number; // price to buy
   ask: number; // price to sell
+  open: number; // price to sell
+  chgBid:number;
+  chgAsk:number;
+  chgUpDown:number;
 }
 @Injectable({
   providedIn: 'root',
 })
 export class QuotesDataService { //Service to handle data stream
-  private quotesWS$: WebSocketSubject<IRate[]>;
+  private quotesWS$: WebSocketSubject<IRate[]|{message:string}>;
   public connectionOk$ = new BehaviorSubject <boolean> (false) //Connection status for UI
-  private connectionToSwitchMap = new Subject<boolean> () //Connection status for switchMap. It closes with quotesWS$ and doesn't allow to notify UI that connection is closed
+  public streamActive$ = new BehaviorSubject <boolean> (false) //Stream status for UI
   public quotesDataArray: IRate[] = []; // Quotes array to be displayed in the template
 
-  private connectToWSServer(endpoint = environment.TEST_WS_ENDPOINT):Observable<boolean> {
+  public connectToWSServer(endpoint = environment.TEST_WS_ENDPOINT) {
     this.quotesWS$ = webSocket({
       url:  endpoint+'/front',
       openObserver: {next:()=>{
+        console.log('openObserver');
         this.connectionOk$.next(true);
-        this.connectionToSwitchMap.next(true);
       }},
       closingObserver:{next:()=>console.log('closing')},
       closeObserver:{next:(event)=>{
         console.log('closed front connection',event);
-        // this.connectionOk$.getValue()? setTimeout(() => this.connectToWSServer(), 200) : null;
         this.connectionOk$.next(false)
-        // this.disconnectFromServer();
       }}
     });
     this.quotesWS$.pipe(
-/*       retry({delay:environment.RETRY_INTERVAL }), 
-      repeat({ delay: environment.RETRY_INTERVAL }) */
+      retry({count:2, delay:environment.RETRY_INTERVAL }), 
+      repeat({delay: environment.RETRY_INTERVAL }),
+      filter(data=>('message' in Object(data))),
     )
-    .subscribe({error:err=>console.log('error',err)});
-    return this.connectionToSwitchMap.asObservable();
+    .subscribe({      
+      error: err=>{ 
+        console.log('error connectToWSServer',err);
+        this.streamActive$.next(false);
+      },
+      next:msg => {
+        switch ((msg as {message:string}).message) { 
+          case 'stream_started':
+            this.streamActive$.next(true) 
+            this.connectionOk$.next(true);
+          break
+          case 'stream_stopped':
+            this.streamActive$.next(false) 
+          break
+          default: console.log('msg',msg);
+        }
+      }
+  });
   }
 
-  public tapToQuotesStream( endpoint: string = environment.TEST_WS_ENDPOINT,  cachingTime = 500): Observable<IRate[]> {
+  public tapToQuotesStream( cachingTime = 500): Observable<IRate[]> {
     return of(!this.quotesWS$||this.quotesWS$.closed).pipe(
-      switchMap(connetionOn=>connetionOn? this.connectToWSServer(endpoint) : of(true)) ,
       switchMap(()=> this.quotesWS$.pipe(
+        filter(data=>!('message' in Object(data))),
+        timeout({ each: environment.STREAM_TIMEOUT}),
         pairwise(),
-        map(([oldSet,newSet])=>newSet.concat(oldSet.filter(oldRate=> newSet.every(newRate=>!newRate.symbol.includes(oldRate.symbol))))),
+        map(([oldSet,newSet])=>(newSet as IRate[]).concat((oldSet as IRate[]).filter(oldRate=> (newSet as IRate[]).every(newRate=>!newRate.symbol.includes(oldRate.symbol))))),
         throttleTime(cachingTime), 
         switchMap(newSetFull => {
+          newSetFull.length && !this.streamActive$.getValue()? this.streamActive$.next(true) : null;
           newSetFull.forEach(newRate=> {
             const index = this.quotesDataArray.findIndex(rateRow=>rateRow.symbol===newRate.symbol)
             index > -1? this.quotesDataArray[index] = newRate : this.quotesDataArray.push(newRate)
           })
           return of(this.quotesDataArray)
+        }),
+        catchError((err) => {
+          console.log('error tapToQuotesStream',err);
+          this.streamActive$.next(false) 
+          return of(this.quotesDataArray);
         })
       )));
   };
 
   public disconnectFromServer () {
-    this.quotesWS$.unsubscribe();
+    this.quotesWS$.closed? null: this.quotesWS$.unsubscribe();
   }
 }

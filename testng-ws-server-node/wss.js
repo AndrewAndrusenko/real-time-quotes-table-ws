@@ -3,7 +3,7 @@ import process from 'node:process'
 import readline from "readline";
 import {fork} from "child_process";
 import path from 'path';
-import {helpText} from './help.js'
+import {helpText} from './data/help.js'
 const defaultColor ='\x1b[0m';
 const msgColor ='\x1b[90m';
 var serverForkProcess;

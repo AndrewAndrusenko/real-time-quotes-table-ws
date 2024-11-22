@@ -2,18 +2,27 @@
   <section class="testing-panel">
     <app-testing-panel></app-testing-panel>
   </section>
-  <details  open>
-  <summary>Connection Panel</summary>
+  <details class="mng-panel" open>
+  <summary class="mng-panel__header" >
+    Connection Panel - Stream Status:
+    <span #status
+      class="mng-panel__header__status" 
+      [ngClass]="(this.quotesService.streamActive$ | async) && (this.quotesService.connectionOk$ |async)? 'Connected': (this.quotesService.connectionOk$ |async)? 'Disconnected':''" 
+      >
+      {{(this.quotesService.streamActive$ | async)? ' Active':' No stream'}}
+    </span>
+  </summary>
   <section class="connection-panel">
     <button  mat-button class="connection-panel__button"    
       [ngClass]="(this.quotesService.connectionOk$ |async)?  'stop-connection' : 'start-connection' " 
-      (click)="quotesStreamIsOpened ? disconnectedFromStream() : getQuotesStream(cachedTime);" >
-      <mat-icon class="connection-panel__button-icon">{{quotesStreamIsOpened ? 'cast_connected' : 'cast'}}</mat-icon>
-      <span class="connection-panel__button-text">{{ quotesStreamIsOpened ? "Stop " : "Connect to" }} WS</span>
+      (click)="manageStream()" >
+      <mat-icon class="connection-panel__button-icon">{{(this.quotesService.connectionOk$ |async) ? 'cast_connected' : 'cast'}}</mat-icon>
+      <span class="connection-panel__button-text">{{ (this.quotesService.connectionOk$ |async) ? "Stop " : "Connect to" }} WS</span>
     </button>
     <span class="connection-panel__cache">
       <label for="cache" class="connection-panel__cache-label">Cache Time:</label>
-      <input id="cache" class="connection-panel__cache-input" [(ngModel)]="cachedTime" matTooltip="Time to cache the stream in milliseconds" >
+      <mat-slider #slider min="50" max="1050" step="100" value="550"  [(ngModel)]="cachedTime"></mat-slider>
+      <input id="cache" class="connection-panel__cache-input" [(ngModel)]="slider.value" matTooltip="Time to cache the stream in milliseconds" >
       <button mat-button class="connection-panel__button reset-connection" (click)="resetCacheTime()">
         <mat-icon class="connection-panel__button-icon reset-connection" matTooltip="Reset Stream" >refresh</mat-icon>
         <span class="connection-panel__button-text">Reset</span>
@@ -33,14 +42,22 @@
       <span class="quotes-table__header-col">Symbol</span>
       <span class="quotes-table__header-col">Bid</span>
       <span class="quotes-table__header-col">Ask</span>
+      <span class="quotes-table__header-col">Change</span>
+      <span class="quotes-table__header-col">UD</span>
       <span class="quotes-table__header-col">Time</span>
     </li>
     <hr>
     <li *ngFor="let item of quotesData$ | async; let last = last; trackBy: trackByfn">
-      <div class="quotes-table quotes-table__items">
+      <div class="quotes-table quotes-table__items" >
         <span class="quotes-table__items-col">{{ item.symbol }}</span>
-        <span class="quotes-table__items-col">{{ item.bid }}</span>
-        <span class="quotes-table__items-col">{{ item.ask }}</span>
+        <span class="quotes-table__items-col" [ngClass]="item.chgUpDown===1? 'quoteUp':'quoteDown'">{{ item.bid }}</span>
+        <span class="quotes-table__items-col" [ngClass]="item.chgUpDown===1? 'quoteUp':'quoteDown'">{{ item.ask }}</span>
+        <span class="quotes-table__items-col">{{ item.chgBid | percent : '1.2-2' }}</span>
+        <span  class="quotes-table__items-col" style="display: flex; justify-content: center; " >
+          <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 16 16">
+            <path d="M 1.79 7.61 L 4.361 7.61 L 4.361 13.805 L 10.934 13.805 L 10.934 7.61 L 13.507 7.61 L 7.647 0" fill="#0C0" style=""></path>
+          </svg>
+        </span>
         <span class="quotes-table__items-col">{{ item.time | date : "HH:mm:ss" }}</span>
       </div>
       <hr class="quotes-table__items-divider" *ngIf="!last">
