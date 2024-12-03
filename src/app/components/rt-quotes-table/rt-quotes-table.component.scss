@@ -1,14 +1,16 @@
 @import '../../../styles/mixins_media.scss';
+
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
   transition: background-color 0s 600000s, color 0s 600000s !important;
 }
-::ng-deep .mat-slider-track-fill  {
+:host::ng-deep .mat-slider-track-fill  {
   background-color: black !important
 }
-::ng-deep .mat-slider-thumb  {
+:host::ng-deep .mat-slider-thumb  {
   background-color: black !important
 }
+
 .material-icons {
   line-height: 0.9 !important;
 }
@@ -209,13 +211,32 @@ input:-webkit-autofill:focus {
         }
 
         &.quoteUp {
-          background-color:#57bf82;
           border-radius: 5px;
+          animation: blinkGreen 2s
         }
         &.quoteDown {
-          background-color:rgb(242, 92, 92);
           border-radius: 5px;
-          animation: bubble 2s linear 0.5s 1 normal forwards;
+          animation: blinkRed 2s
+        }
+        &.quoteUpPrc {
+          color:#0eab52;
+          font-weight: 500;
+        }
+        &.quoteDownPrc {
+          color:rgb(242, 92, 92);
+          font-weight: 500;
+        }
+        &__icon {
+          width: 26px;
+          height: 26px;
+
+          &.quoteDown {
+            transform: rotate(180deg);
+          }
+
+          &__arrow.quoteDown {
+            fill:#bc2d10
+          }
         }
       }
 
@@ -225,6 +246,22 @@ input:-webkit-autofill:focus {
         color: var(--color-text-light)
       }
     }
+  }
+}
+@keyframes blinkRed {
+  0% {
+    background-color:rgb(242, 92, 92);
+  }
+  90% {
+    background-color: var(--background-color);
+  }
+}
+@keyframes blinkGreen {
+  0% {
+    background-color:#57bf82;
+  }
+  90% {
+    background-color: var(--background-color);
   }
 }
 

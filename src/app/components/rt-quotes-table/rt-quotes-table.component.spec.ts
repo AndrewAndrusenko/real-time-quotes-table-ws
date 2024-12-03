@@ -32,14 +32,14 @@ describe('RTQuotesTableComponent', () => {
       cmd: 'start',
       timeToWork: 60000,
       intervalToEmit: 20,
-      symbolQty: 500,
+      market: 'm',
     };
-    serviceTestingHelper.createTestingStream(cmd); //creatintg testing stream of quotes.
+    serviceTestingHelper.sendMessageToServer(cmd); //creatintg testing stream of quotes.
     const cachingTime = 20; // caching time equals emiting interaval. real time flow without cache
     expect(
       await new Promise((resolve) => {
         service
-          .tapToQuotesStream(undefined, cachingTime)
+          .tapToQuotesStream(cachingTime)
           .subscribe(async (ratesSet) => {
             emmmision++;
             expect(ratesSet.length).toBeGreaterThan(1); //check if there is data from testing server
@@ -64,9 +64,9 @@ describe('RTQuotesTableComponent', () => {
       cmd: 'start',
       timeToWork: 10000,
       intervalToEmit: 20,
-      symbolQty: 500,
+      market: 'm',
     };
-    serviceTestingHelper.createTestingStream(cmd); //creatintg testing stream of quotes
+    serviceTestingHelper.sendMessageToServer(cmd); //creatintg testing stream of quotes
     expect(
       await new Promise((resolve) => {
         service.tapToQuotesStream().subscribe((ratesSet) => {
@@ -85,9 +85,9 @@ describe('RTQuotesTableComponent', () => {
       cmd: 'start',
       timeToWork: 1000,
       intervalToEmit: 20,
-      symbolQty: 500,
+      market: 'm',
     };
-    serviceTestingHelper.createTestingStream(cmd); //creatintg testing stream of quotes
+    serviceTestingHelper.sendMessageToServer(cmd); //creatintg testing stream of quotes
     expect(
       await new Promise((resolve) => {
         service.tapToQuotesStream().subscribe((ratesSet) => {

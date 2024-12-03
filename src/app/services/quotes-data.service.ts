@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { map, throttleTime,  switchMap, pairwise, filter, timeout, catchError, retry ,repeat} from 'rxjs/operators';
+import { throttleTime,  switchMap, filter, timeout, catchError, retry ,repeat} from 'rxjs/operators';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 export interface IRate {
@@ -52,6 +52,7 @@ export class QuotesDataService { //Service to handle data stream
           case 'stream_started':
             this.streamActive$.next(true) 
             this.connectionOk$.next(true);
+            this.quotesDataArray = [];
           break
           case 'stream_stopped':
             this.streamActive$.next(false) 
@@ -63,14 +64,18 @@ export class QuotesDataService { //Service to handle data stream
   }
 
   public tapToQuotesStream( cachingTime = 500): Observable<IRate[]> {
+    let bufferRates: IRate[] =[];
     return of(!this.quotesWS$||this.quotesWS$.closed).pipe(
       switchMap(()=> this.quotesWS$.pipe(
         filter(data=>!('message' in Object(data))),
         timeout({ each: environment.STREAM_TIMEOUT}),
-        pairwise(),
-        map(([oldSet,newSet])=>(newSet as IRate[]).concat((oldSet as IRate[]).filter(oldRate=> (newSet as IRate[]).every(newRate=>!newRate.symbol.includes(oldRate.symbol))))),
+        switchMap(newSet =>{ 
+          const newSetSymbols =( newSet as IRate[]).map(newRate=>newRate.symbol)
+          return of(bufferRates = (newSet as IRate[]).concat(bufferRates.filter(oldRate=>!newSetSymbols.includes(oldRate.symbol))))
+        }),
         throttleTime(cachingTime), 
         switchMap(newSetFull => {
+          bufferRates = [];
           newSetFull.length && !this.streamActive$.getValue()? this.streamActive$.next(true) : null;
           newSetFull.forEach(newRate=> {
             const index = this.quotesDataArray.findIndex(rateRow=>rateRow.symbol===newRate.symbol)

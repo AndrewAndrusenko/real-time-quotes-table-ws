@@ -8,6 +8,7 @@
       {{(this.testingService.serverConnection$ | async)? ' Connected':' Disconnected'}}
     </span>
   </summary>
+  <label *ngIf="(this.testingService.serverError$ | async)" class="" style="color: red; white-space: pre;">Error:  {{this.testingService.serverError$.getValue()}}</label>
   <form [formGroup]="manageStreamForm">
     <button #manage mat-button [disabled]="manageStreamForm.invalid" 
       [ngClass]="(quotesStreamIsStarted | async)? 'form__button-stream stop-stream' : 'form__button-stream start-stream'" 
@@ -39,7 +40,10 @@
         </mat-error>
       </mat-form-field>
       <mat-form-field>
-        <input matInput  [readonly]="true" placeholder="SymbolQty" matTooltip="Instrument quantity in the stream" formControlName="symbolQty">
+        <mat-select formControlName="market" >
+          <mat-option  [value]="'m'"> MOEX</mat-option>
+          <mat-option  [value]="'n'"> Nasdaq</mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
   </form>

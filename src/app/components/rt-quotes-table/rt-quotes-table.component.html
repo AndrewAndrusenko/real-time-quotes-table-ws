@@ -21,7 +21,7 @@
     </button>
     <span class="connection-panel__cache">
       <label for="cache" class="connection-panel__cache-label">Cache Time:</label>
-      <mat-slider #slider min="50" max="1050" step="100" value="550"  [(ngModel)]="cachedTime"></mat-slider>
+      <mat-slider #slider min="50" max="10050" step="100" value="550"  [(ngModel)]="cachedTime"></mat-slider>
       <input id="cache" class="connection-panel__cache-input" [(ngModel)]="slider.value" matTooltip="Time to cache the stream in milliseconds" >
       <button mat-button class="connection-panel__button reset-connection" (click)="resetCacheTime()">
         <mat-icon class="connection-panel__button-icon reset-connection" matTooltip="Reset Stream" >refresh</mat-icon>
@@ -52,10 +52,17 @@
         <span class="quotes-table__items-col">{{ item.symbol }}</span>
         <span class="quotes-table__items-col" [ngClass]="item.chgUpDown===1? 'quoteUp':'quoteDown'">{{ item.bid }}</span>
         <span class="quotes-table__items-col" [ngClass]="item.chgUpDown===1? 'quoteUp':'quoteDown'">{{ item.ask }}</span>
-        <span class="quotes-table__items-col">{{ item.chgBid | percent : '1.2-2' }}</span>
-        <span  class="quotes-table__items-col" style="display: flex; justify-content: center; " >
-          <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 16 16">
-            <path d="M 1.79 7.61 L 4.361 7.61 L 4.361 13.805 L 10.934 13.805 L 10.934 7.61 L 13.507 7.61 L 7.647 0" fill="#0C0" style=""></path>
+        <span class="quotes-table__items-col" [ngClass]="item.chgBid>=0? 'quoteUpPrc':'quoteDownPrc'">{{ item.chgBid | percent : '1.2-2' }}</span>
+        <span  class="quotes-table__items-col">
+          <svg 
+            class="quotes-table__items-col__icon" 
+            [ngClass]="item.chgUpDown===1? 'quoteUp':'quoteDown'"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <path 
+            [ngClass]="item.chgUpDown===1? 'quoteUp':'quoteDown'"
+              class="quotes-table__items-col__icon__arrow" 
+              d="M 1.79 7.61 L 4.361 7.61 L 4.361 13.805 L 10.934 13.805 L 10.934 7.61 L 13.507 7.61 L 7.647 0" fill="#57bf82">
+            </path>
           </svg>
         </span>
         <span class="quotes-table__items-col">{{ item.time | date : "HH:mm:ss" }}</span>

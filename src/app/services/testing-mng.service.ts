@@ -7,7 +7,7 @@ export interface IServerCommand {
   cmd: string; //command to server: start, stop
   timeToWork: number; //time of emmiting values in milliseconds
   intervalToEmit: number; //interval between emits in milliseconds
-  symbolQty: number; // max quantity of symbols in a stream
+  market: string;
 }
 @Injectable({
   providedIn: 'root',
@@ -16,6 +16,7 @@ export class TestingMngService { //Service to handle testing functionaly
   public webSocketTest:WebSocketSubject<{message:string}|IServerCommand>;
   public streamStarted$ = new BehaviorSubject <boolean> (false)
   public serverConnection$ = new BehaviorSubject <boolean> (false)
+  public serverError$ = new BehaviorSubject <string> ('')
   public quotesStreamIsStarted = false;
   private cmdCurrent:IServerCommand;
   ngOnDestroy(): void {
@@ -51,7 +52,7 @@ export class TestingMngService { //Service to handle testing functionaly
       },
       complete: ()=>console.log('complete'),
       next:msg => {
-        switch ((msg as {message:string}).message) { 
+        switch ((msg as {message:string, detail: string}).message) { 
           case 'stream_stopped':
             console.log('stream_stopped',);
             this.streamStarted$.next(false) 
@@ -59,7 +60,12 @@ export class TestingMngService { //Service to handle testing functionaly
             break;
           case 'stream_started': 
             console.log('stream_started',);
+            this.serverError$.next('')
             this.streamStarted$.next(true);
+          break;
+          case 'error': 
+            console.log('error');
+            this.serverError$.next((msg as {message:string, detail: string}).detail);
           break;
           default: console.log('msg',msg);
         }

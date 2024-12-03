@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import {promises as fs} from 'fs';
 import process from 'node:process';
-import {quotesPath} from './market-quotes-load.js'
+import {moexRead, nasdaqRead} from './market-quotes-load.js'
+import { switchMap,of,tap, catchError, EMPTY } from 'rxjs';
 class Rate {
   time; //quotes time
   symbol; //instrument code
@@ -17,8 +17,8 @@ var wsStreamMockInt; // interval to mock data stream from server
 var ws_timeout;
 process.send = process.send || console.log 
 
-export function shareConnectionStatus (wsServer, msg) {
-  wsServer.clients.forEach(client => client.readyState === 1 ? client.send(JSON.stringify({message:msg})):null)
+export function shareConnectionStatus (wsServer, msg, details='') {
+  wsServer.clients.forEach(client => client.readyState === 1 ? client.send(JSON.stringify({message:msg, detail:details})):null)
 }
 
 export function stopQuotesStreams (wsServer,msg) {
@@ -31,35 +31,48 @@ export function stopQuotesStreams (wsServer,msg) {
 //param timeToWork - time of intereval or time of server working and streaming data
 //param intervalToEmit - interval of emmision. frequency of emits
 //param symbolQty - quantity of instruments inside stream
-export async function simulateRatesFlow (wsServer, timeToWork = 60 * 30, intervalToEmit = 100) {
+export function simulateRatesFlow (wsServer, timeToWork = 60 * 30, intervalToEmit = 100, source = 'm') {
   timeToWork=timeToWork||60*30;
   intervalToEmit=intervalToEmit||100;
   shareConnectionStatus (wsServer, 'stream_started');
-  let symbols
-  const data = await fs.readFile(quotesPath)
-  symbols = JSON.parse(data)
-  symbols.map((el=>{return el.VALUE=el.OPEN}))
-  process.send(['Stream has been launched for',Number(timeToWork),'sec with', Number(intervalToEmit), 'ms interval'])
-  console.log('symbols.length',symbols.length);
-  wsStreamMockInt = setInterval(() => {
-    let ratesSet = []; // quotes set to be emited from the mock server
-    symbols.forEach((symbol) => {
-      let changeQuote = Math.round(Math.random() * 0.53); //flag to generate or not quotes for the specific instrument
-      if (changeQuote) {
-        let rate = new Rate();
-        rate.chgUpDown = Math.floor(Math.random() * 2)
-        let multi = rate.chgUpDown ===1? (1 + Math.random() / quoteDeviationRate) : (1 - Math.random() / quoteDeviationRate)
-        rate.bid = Math.round(symbol.VALUE * multi * 10000) / 10000;
-        symbol.VALUE = rate.bid;
-        rate.ask = Math.round(rate.bid * (1 + Math.random() / quoteDeviationRate) * 10000) / 10000; // random ask price = random bid + random deviation from bid
-        rate.symbol = symbol.SECID.replace('RU000','');
-        rate.time = new Date(); 
-        rate.chgBid = (rate.bid/symbol.OPEN - 1) 
-        rate.open= symbol.OPEN;
-        ratesSet.push(rate);
-      }
-    });
-    wsServer.clients.forEach(client => client.readyState === 1 && client.manage !=='/manage_connection'? client.send(JSON.stringify(ratesSet)) : null);
-  }, intervalToEmit);
-  ws_timeout = setTimeout(() => {stopQuotesStreams(wsServer,'stream_stopped')}, timeToWork*1000);//setting timer to stop emmision after given time d
+  console.log('sour',source);
+  of(source).pipe(
+    switchMap(source => source==='m'? moexRead() : nasdaqRead()),
+    tap(symbols => {
+      console.log('symbols',symbols);
+      symbols.forEach(el=>el.VALUE=el.OPEN)
+      console.log('symbols',symbols[2]);
+      wsStreamMockInt = setInterval(() => {
+        let ratesSet = []; // quotes set to be emited from the mock server
+        symbols.forEach((symbol) => {
+          let changeQuote = Math.round(Math.random() * 0.53); //flag to generate or not quotes for the specific instrument
+          if (changeQuote&&symbol.OPEN) {
+            let rate = new Rate();
+            rate.chgUpDown = Math.floor(Math.random() * 2)
+            let multi = rate.chgUpDown ===1? (1 + Math.random() / quoteDeviationRate) : (1 - Math.random() / quoteDeviationRate)
+            rate.bid = Math.round(symbol.VALUE * multi * 10000) / 10000;
+            symbol.VALUE = rate.bid;
+            rate.ask = Math.round(rate.bid * (1 + Math.random() / quoteDeviationRate) * 10000) / 10000; // random ask price = random bid + random deviation from bid
+            rate.symbol = symbol.SECID.replace('RU000','');
+            rate.time = new Date(); 
+            rate.chgBid = (rate.bid/symbol.OPEN - 1) 
+            rate.open= symbol.OPEN;
+            ratesSet.push(rate);
+            ['TSLA','LLY','SPOT'].includes(rate.symbol)? process.send([rate.symbol,rate.bid,rate.time ]):null
+          }
+        });
+        wsServer.clients.forEach(client => client.readyState === 1 && client.manage !=='/manage_connection'? client.send(JSON.stringify(ratesSet)) : null);
+      }, intervalToEmit);
+      ws_timeout = setTimeout(() => {stopQuotesStreams(wsServer,'stream_stopped')}, timeToWork*1000);//setting timer to stop emmision after given time d
+    }),
+    catchError(err=>{
+      console.log(err.message);
+      shareConnectionStatus (wsServer, 'stream_stopped');
+      shareConnectionStatus (wsServer, 'error','Stream has not been started\n'+err.message);
+      return EMPTY
+    })
+  ).subscribe (symbols =>
+    process.send(['Stream has been launched for',Number(timeToWork),'sec with', Number(intervalToEmit), 'ms interval',(source.replaceAll('m','moex')).replaceAll('n','nasdaq'), 'is a source with', symbols.length, 'symbols'])
+    
+  )
 }

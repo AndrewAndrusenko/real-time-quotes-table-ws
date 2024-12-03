@@ -5,13 +5,18 @@ import {WebSocketServer } from 'ws';
 import {Buffer } from 'node:buffer';
 import * as quotesStreamHandlers from './quotes-stream-handlers.js';
 import {getMoexSharesQuotesLast} from './market-quotes-load.js';
+import readline from 'node:readline'
+import { EMPTY,catchError } from 'rxjs';
 const PORT = 3003;
+var rl = readline.createInterface({
+  input: process.stdin, 
+  terminal: false
+})
+rl.on('line',(line)=>line==='exit'? closeProcess():null )
 var serverStatus = 'none';
 process.send = process.send || console.log 
 process.stdin.resume();
 process.on('SIGINT',() => {
-  process.send? null:process.exit(0)
-
 }); 
 process.on('uncaughtException',(err) => {
   process.send(['uncaughtException -',err]); 
@@ -19,7 +24,9 @@ process.on('uncaughtException',(err) => {
 }); 
 
 let params=[];
+
 process.on('message',(msg)=>{
+  let p1 = []
   switch (msg.split(' ')[0]) {
     case 'rs':
       restartWsServer(); 
@@ -31,7 +38,10 @@ process.on('message',(msg)=>{
       quotesStreamHandlers.stopQuotesStreams();
       params = msg.trim().split(' ')
       params.shift();
-      params.length<=2 && params.every(el=>!Number.isNaN(Number(el)))? quotesStreamHandlers.simulateRatesFlow(wsServer,...params) : process.send(['Incorrect params']);
+      p1.push( params[0] === undefined || !Number.isNaN(Number(params[0])))
+      p1.push( params[1] === undefined || !Number.isNaN(Number(params[1])))
+      p1.push( params[2] === undefined || ['m','n'].includes(params[2]))
+      params.length<=3 && p1.every(el=>el===true)? quotesStreamHandlers.simulateRatesFlow(wsServer,...params) : process.send(['Incorrect params']);
     break;
     case 'stop':
       quotesStreamHandlers.stopQuotesStreams();
@@ -70,7 +80,12 @@ httpServer.once('connection', ()=>{console.log('http connection')});
 httpServer.on('error', (error)=>{process.send(`http error ${error}`)});
 httpServer.listen(PORT, () => { //sever starting
   process.send(['WebSocket server is listening on port',PORT ,'PID', process.pid])
-  getMoexSharesQuotesLast().subscribe(res=>process.send([res]))  //update moex quotes with last open prices via moex api
+  getMoexSharesQuotesLast().pipe(      
+    catchError(err => {
+      console.log('Error in loading MOEX data\n',err.message);
+      return EMPTY
+  }))
+  .subscribe(res=>process.send([res]))  //update moex quotes with last open prices via moex api
 });
 const wsServer = new WebSocketServer ({ server: httpServer }); 
 wsServer.on('close', ()=> process.send(['WS Server is closed. Clients connected:',wsServer.clients.size]));
@@ -87,7 +102,7 @@ wsServer.on("connection", async (ws, req) => {
     switch (cmdIns.cmd) {
       case "start": //start new stream and stop 
         quotesStreamHandlers.stopQuotesStreams();
-        quotesStreamHandlers.simulateRatesFlow(wsServer, cmdIns.timeToWork, cmdIns.intervalToEmit, cmdIns.symbolQty ); //create new stream of quotes
+        quotesStreamHandlers.simulateRatesFlow(wsServer, cmdIns.timeToWork, cmdIns.intervalToEmit, cmdIns.market ); //create new stream of quotes
         break;
       case "stop": //stop stream of quotes
         quotesStreamHandlers.stopQuotesStreams();
