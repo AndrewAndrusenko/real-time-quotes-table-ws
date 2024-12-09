@@ -14,6 +14,20 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatExpansionModule} from '@angular/material/expansion';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatSelectModule} from '@angular/material/select';
+import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
+import { CookieService } from 'ngx-cookie-service';
+export const IndexDBConfig: DBConfig  = {
+  name: 'RTQ',
+  version: 1,
+  objectStoresMeta: [{
+    store: 'filters',
+    storeConfig: { keyPath: 'code', autoIncrement: false },
+    storeSchema: [
+      { name: 'code', keypath: 'code', options: { unique: true } },
+      { name: 'filter', keypath: 'filter', options: { unique: true } },
+    ]
+  }]
+};
 @NgModule({
   declarations: [
     AppComponent, 
@@ -31,11 +45,13 @@ import {MatSelectModule} from '@angular/material/select';
     MatTooltipModule,
     MatExpansionModule,
     MatAutocompleteModule,
-    MatSelectModule
+    MatSelectModule,
+    NgxIndexedDBModule.forRoot(IndexDBConfig) 
     
   ],
   providers: [
-    provideAnimations()
+    provideAnimations(),
+    [CookieService]
   ],
   bootstrap: [AppComponent],
 })

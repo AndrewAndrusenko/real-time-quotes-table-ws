@@ -14,7 +14,15 @@ input:-webkit-autofill:focus {
 .material-icons {
   line-height: 0.9 !important;
 }
+/* .filter__option {
+  display: flex!important;
+  justify-content: space-between!important;
+  gap: 5vw!important;
+// flex-direction: column!important;
+  color: red!important;
+} */
 .content {
+
   width: var(--contentWidth);
   background-color: inherit;
   margin-top: 2vh;
@@ -164,11 +172,21 @@ input:-webkit-autofill:focus {
       }
     }
   }
-  
-  .filter {
+
+  &__filter {
     width: var(--contentWidth);
+
+    &__button-icon {
+      transform: scale(1.2);
+    }
+    &__option-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
   }
-  
+
   .quotes-table {
     list-style-type: none;
     justify-content: space-between;

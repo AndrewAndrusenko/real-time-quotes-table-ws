@@ -30,13 +30,28 @@
     </span>
   </section>
   </details>
-  <iframe name="💾" style="display:none" src="about:blank"></iframe>
-  <form target="💾" action="about:blank" id="my-form"  autocomplete="on">
-    <mat-form-field  class="filter">
+    <mat-form-field  class="content__filter">
       <mat-label >Filter - symbols separated by comma. Click/tap to add filter to autofill </mat-label>
-      <input matInput [formControl]="filterQuotesList" (click)="saveFilter()" id="filter-int" class="filter-input">
+      <input type="text"
+        placeholder="Pick one"
+        aria-label="Number"
+        matInput
+        [formControl]="filterQuotesList"
+        [matAutocomplete]="auto">
+      <button *ngIf="newFilter|async" matSuffix mat-icon-button aria-label="Save" matTooltip="Save Filter"  (click)="saveFilter(filterQuotesList.value)">
+        <mat-icon class="content__filter__button-icon">save</mat-icon>
+      </button>
+      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" >
+        <mat-option *ngFor="let filterEl of savedFilters" [value]="filterEl">
+          <div class="content__filter__option-item"> 
+            <span> {{filterEl}}</span>  
+            <button  matSuffix mat-icon-button aria-label="Delete" matTooltip="Delete Filter"  (click)="deleteFilter($event,filterEl)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
     </mat-form-field>
-  </form>
   <section class="quotes-table">
     <li class="quotes-table quotes-table__header">
       <span class="quotes-table__header-col">Symbol</span>
