@@ -31,13 +31,18 @@
   </section>
   </details>
     <mat-form-field  class="content__filter">
-      <mat-label >Filter - symbols separated by comma. Click/tap to add filter to autofill </mat-label>
+      <mat-label >Filter - symbols separated by comma </mat-label>
       <input type="text"
         placeholder="Pick one"
         aria-label="Number"
         matInput
         [formControl]="filterQuotesList"
         [matAutocomplete]="auto">
+      <button matSuffix mat-icon-button aria-label="Clear" matTooltip="Clear Filter"  (click)="
+        filterQuotesList.patchValue('');
+        $event.stopPropagation();">
+        <mat-icon class="content__filter__button-icon">clear</mat-icon>
+      </button>
       <button *ngIf="newFilter|async" matSuffix mat-icon-button aria-label="Save" matTooltip="Save Filter"  (click)="saveFilter(filterQuotesList.value)">
         <mat-icon class="content__filter__button-icon">save</mat-icon>
       </button>
