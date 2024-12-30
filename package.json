@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --open --host 0.0.0.0 --port 4203 --disable-host-check",
-    "build": "ng build",
+    "start vanila": "ng serve --port 4203",
+    "build": "ng build --base-href='/apps/rtq/'",
+    "postbuild": "xcopy /s /y c:\\JS\\JSP\\real-time-quotes\\dist c:\\JS\\JSP\\prod-server-ts-express\\dist\\public\\apps\\rtq",
     "watch": "ng build --watch --configuration development",
     "test": "jest --verbose",
     "test:coverage": "jest --coverage",
