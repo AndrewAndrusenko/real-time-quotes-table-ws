@@ -40,8 +40,9 @@ export class RTQuotesTableComponent {
   manageStream () {
     this.quotesService.connectionOk$.getValue()? this.disconnectedFromStream() : this.quotesService.connectToWSServer()
   }
-  resetCacheTime() {
-    this.getQuotesStream(this.cachedTime)
+  resetCacheTime(caheInput:HTMLInputElement) {
+    console.log('caheInput',caheInput.value,this.cachedTime )
+    this.getQuotesStream(this.cachedTime!==Number(caheInput.value)? Number(caheInput.value) : this.cachedTime )
   }
   getQuotesStream(cahceTime = 500) {//Subscribe to the stream of quotes and handle update of quotes array
     this.quotesData$ = this.quotesService.tapToQuotesStream(cahceTime)

@@ -4,7 +4,7 @@
   </section>
   <details class="mng-panel" open>
   <summary class="mng-panel__header" >
-    Connection Panel - Stream Status:
+    Connection Panel - Stream Status:{{'\n'}}
     <span #status
       class="mng-panel__header__status" 
       [ngClass]="(this.quotesService.streamActive$ | async) && (this.quotesService.connectionOk$ |async)? 'Connected': (this.quotesService.connectionOk$ |async)? 'Disconnected':''" 
@@ -21,9 +21,9 @@
     </button>
     <span class="connection-panel__cache">
       <label for="cache" class="connection-panel__cache-label">Cache Time:</label>
-      <mat-slider #slider min="50" max="10050" step="100" value="550"  [(ngModel)]="cachedTime"></mat-slider>
-      <input id="cache" class="connection-panel__cache-input" [(ngModel)]="slider.value" matTooltip="Time to cache the stream in milliseconds" >
-      <button mat-button class="connection-panel__button reset-connection" (click)="resetCacheTime()">
+      <mat-slider #slider class="connection-panel__cache-slider" min="50" max="5000" step="100" value="500"  [(ngModel)]="cachedTime"></mat-slider>
+      <input id="cache" #cacheInput class="connection-panel__cache-input" [(ngModel)]="slider.value" matTooltip="Time to cache the stream in milliseconds" >
+      <button mat-button class="connection-panel__button reset-connection" (click)="resetCacheTime(cacheInput)">
         <mat-icon class="connection-panel__button-icon reset-connection" matTooltip="Reset Stream" >refresh</mat-icon>
         <span class="connection-panel__button-text">Reset</span>
       </button>
