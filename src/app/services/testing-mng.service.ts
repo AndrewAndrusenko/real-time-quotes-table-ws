@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, repeat, retry } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { ENV } from 'src/environments/environment';
+import { SnacksService } from './snacks.service';
+import { SERVER_ERRORS } from '../types/errors-model';
 export interface IServerCommand {
   cmd: string; //command to server: start, stop
   timeToWork: number; //time of emmiting values in milliseconds
@@ -13,6 +15,7 @@ export interface IServerCommand {
   providedIn: 'root',
 })
 export class TestingMngService { //Service to handle testing functionaly
+  constructor(private snacksService:SnacksService) {}
   public webSocketTest:WebSocketSubject<{message:string}|IServerCommand>;
   public streamStarted$ = new BehaviorSubject <boolean> (false)
   public serverConnection$ = new BehaviorSubject <boolean> (false)
@@ -41,6 +44,7 @@ export class TestingMngService { //Service to handle testing functionaly
         switch (event.code) {
           case 1012:
             this.webSocketTest.unsubscribe()
+            this.snacksService.openSnack(`Error code: ${event.code}. ${SERVER_ERRORS.get(1).messageToUI} `,'Okay','error-snackBar')
             this.serverError$.next(event.reason)
           break;
           default:

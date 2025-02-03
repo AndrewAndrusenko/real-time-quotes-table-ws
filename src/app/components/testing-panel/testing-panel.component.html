@@ -8,7 +8,6 @@
       {{(this.testingService.serverConnection$ | async)? ' Connected':' Disconnected'}}
     </span>
   </summary>
-  <label *ngIf="(this.testingService.serverError$ | async)" class="" style="color: red; white-space: pre;">Error:  {{this.testingService.serverError$.getValue()}}</label>
   <form [formGroup]="manageStreamForm">
     <button #manage mat-button [disabled]="manageStreamForm.invalid" 
       [ngClass]="(quotesStreamIsStarted | async)? 'form__button-stream stop-stream' : 'form__button-stream start-stream'" 

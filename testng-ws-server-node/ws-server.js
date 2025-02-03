@@ -46,7 +46,7 @@ wsServer.on("connection", async (ws, req) => {
   .pipe(
     catchError(error=>{
       process.send(['jwt err:', error.message]); //REFACTOR!!
-      wsServer.clients.forEach(client => client.close(1012, Buffer.from( error.message,  "utf8")));
+      ws.close(1012, Buffer.from( error.message,  "utf8"));
       return EMPTY;
     }))
   .subscribe(()=>settingClientHandler(ws,req))

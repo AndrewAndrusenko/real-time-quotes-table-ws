@@ -2,8 +2,17 @@ export interface IErrorHandler {
   code:number,
   messageToUI:string,
   retryConnection:boolean,
+  errmsgIgnore?:boolean
+  persistErr?:boolean
 };
 export const SERVER_ERRORS = new Map <number, IErrorHandler> ([
+  [0, {
+    code:0,
+    messageToUI:'User closed connection',
+    retryConnection:false,
+    errmsgIgnore:true,
+    persistErr:true
+  }],
   [1, {
     code:1,
     messageToUI:'Unable to reconnect to the server',

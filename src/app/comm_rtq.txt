@@ -1,0 +1,25 @@
+JWT auth & Reconncting & Errors
+FrontEnd:
+Refacting UI reconnecting feature
+Error handling and notification
+Introduced routes and route guard to control access
+1. RTQuotesTableComponent:
+  - Error notification via snack component and SnacksService
+  - Status bar notification about connecting and reconnecting process
+  - Added buttons to hide and show Test server panel and connecion panel
+  - Refactored connectionState$ behavior subject
+  - Styling updated and fixed mobile design
+2. QuotesDataService:
+  - Sugnificantly refactored reconnecting functionlity. Repeat callback control manually via two new variables 
+  conecctionRetryCount (qty of attempts to reestablish connection) and current attempt number - connectionAttemptN
+  - Introduced errors-model.ts as map to store server errors code and instructions to handle them (reconnecting or not and etc) 
+  - Fixed closing user intiated closing a connecion. Closing is executed by passing 0 code error.
+  - Error model has been expanded with properties to ignore changing error code and ignore displaing error message
+3. TestingMngService: Added error notification via snack component and SnacksService (only jwt expired)
+
+Backend
+1. auth-module.ts - Added module to verify client via provided jwt token 
+2. ws-server.js:
+  - Added connecion jwt verification via new auth-module.ts and clients notification if there is any error
+  - The whole module has been restructured by spliting functionlity in small functions to make it more relyable and readable
+  - Fix: Closing only a client with expired jwt token and notify only this client

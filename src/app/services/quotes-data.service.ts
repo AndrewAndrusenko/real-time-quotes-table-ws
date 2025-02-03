@@ -43,7 +43,7 @@ export class QuotesDataService { //Service to handle data
       closingObserver:{next:()=>console.log('closing')},
       closeObserver:{next:(event)=>{
         console.log('UI connection is closed with code: ' ,event.code);
-        this.closeConnectionErrorCode = event.code
+        SERVER_ERRORS.get(this.closeConnectionErrorCode)?.persistErr? null: this.closeConnectionErrorCode = event.code
       }}
     });
     
@@ -85,7 +85,8 @@ export class QuotesDataService { //Service to handle data
         if (this.noReconnectErrors.includes(this.closeConnectionErrorCode)) {
           this.connectionAttemptN = 0;
           this.connectionState$.next('disconnected')
-          this.snacksService.openSnack(`Error code: ${this.closeConnectionErrorCode}. ${SERVER_ERRORS.get(this.closeConnectionErrorCode).messageToUI}`,'Okay','error-snackBar')
+          SERVER_ERRORS.get(this.closeConnectionErrorCode).errmsgIgnore? null:
+          this.snacksService.openSnack(`Error code: ${this.closeConnectionErrorCode}. ${SERVER_ERRORS.get(this.closeConnectionErrorCode).messageToUI}`,'Okay','error-snackBar');
           return throwError(()=>new Error(this.closeConnectionErrorCode.toString())); 
         };
         this.connectionRepeat$.next({current:this.connectionAttemptN,total:this.conecctionRetryCount})
@@ -95,6 +96,7 @@ export class QuotesDataService { //Service to handle data
           this.connectionAttemptN = 0
           this.quotesWS$.complete()
           this.connectionState$.next('disconnected');
+          SERVER_ERRORS.get(this.closeConnectionErrorCode).errmsgIgnore? null:
           this.snacksService.openSnack(`Error code: ${this.closeConnectionErrorCode}. ${SERVER_ERRORS.get(1).messageToUI} `,'Okay','error-snackBar')
           return EMPTY; 
         };
@@ -139,6 +141,8 @@ export class QuotesDataService { //Service to handle data
   };
 
   public disconnectFromServer () {
+    this.closeConnectionErrorCode = 0;
     this.quotesWS$.closed? null: this.quotesWS$.unsubscribe();
+    this.streamActive$.next(false)
   }
 }
