@@ -35,13 +35,10 @@ export function simulateRatesFlow (wsServer, timeToWork = 60 * 30, intervalToEmi
   timeToWork=timeToWork||60*30;
   intervalToEmit=intervalToEmit||100;
   shareConnectionStatus (wsServer, 'stream_started');
-  console.log('sour',source);
   of(source).pipe(
     switchMap(source => source==='m'? moexRead() : nasdaqRead()),
     tap(symbols => {
-      console.log('symbols',symbols);
       symbols.forEach(el=>el.VALUE=el.OPEN)
-      console.log('symbols',symbols[2]);
       wsStreamMockInt = setInterval(() => {
         let ratesSet = []; // quotes set to be emited from the mock server
         symbols.forEach((symbol) => {
@@ -58,7 +55,7 @@ export function simulateRatesFlow (wsServer, timeToWork = 60 * 30, intervalToEmi
             rate.chgBid = (rate.bid/symbol.OPEN - 1) 
             rate.open= symbol.OPEN;
             ratesSet.push(rate);
-            ['TSLA','LLY','SPOT'].includes(rate.symbol)? process.send([rate.symbol,rate.bid,rate.time ]):null
+            ['LLY'].includes(rate.symbol)? process.send([rate.symbol,rate.bid,rate.time ]):null
           }
         });
         wsServer.clients.forEach(client => client.readyState === 1 && client.manage !=='/manage_connection'? client.send(JSON.stringify(ratesSet)) : null);

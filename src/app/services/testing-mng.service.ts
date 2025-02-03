@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, repeat, retry } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { environment } from 'src/environments/environment';
+import { ENV } from 'src/environments/environment';
 export interface IServerCommand {
   cmd: string; //command to server: start, stop
   timeToWork: number; //time of emmiting values in milliseconds
@@ -28,7 +28,7 @@ export class TestingMngService { //Service to handle testing functionaly
   }
   private createTestingStream() { //Creating stream of quotes for testing 
     this.webSocketTest = webSocket({
-      url: environment.TEST_WS_ENDPOINT+'/manage_connection',
+      url: ENV.TEST_WS_ENDPOINT+'/manage_connection',
       openObserver: {next:()=>{
         this.serverConnection$.next(true);
         console.log('open',this.cmdCurrent);
@@ -38,11 +38,19 @@ export class TestingMngService { //Service to handle testing functionaly
         console.log('closed',event)
         this.streamStarted$.next(false);
         this.serverConnection$.next(false);
+        switch (event.code) {
+          case 1012:
+            this.webSocketTest.unsubscribe()
+            this.serverError$.next(event.reason)
+          break;
+          default:
+          break;
+        }
       }}
       })
     this.webSocketTest.pipe(
-      retry({count:2, delay:environment.RETRY_INTERVAL }), 
-      repeat({delay: environment.RETRY_INTERVAL })
+      retry({count:2, delay:ENV.RETRY_INTERVAL }), 
+      repeat({delay: ENV.RETRY_INTERVAL })
     ).subscribe({ 
       error: err=>{
         console.log('error',err)

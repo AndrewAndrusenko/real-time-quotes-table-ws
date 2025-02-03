@@ -12,10 +12,14 @@ import { TestingPanelComponent } from './components/testing-panel/testing-panel.
 import { MatTooltipModule} from '@angular/material/tooltip'
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatExpansionModule} from '@angular/material/expansion';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import {MatSelectModule} from '@angular/material/select';
+import { MatAutocompleteModule} from '@angular/material/autocomplete';
+import { MatSelectModule} from '@angular/material/select';
 import { DBConfig, NgxIndexedDBModule } from 'ngx-indexed-db';
 import { CookieService } from 'ngx-cookie-service';
+import { RouterModule } from '@angular/router';
+import { AppRouteModule } from './app.routes';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatSnackBarModule} from '@angular/material/snack-bar'
 export const IndexDBConfig: DBConfig  = {
   name: 'RTQ',
   version: 1,
@@ -46,6 +50,10 @@ export const IndexDBConfig: DBConfig  = {
     MatExpansionModule,
     MatAutocompleteModule,
     MatSelectModule,
+    RouterModule,
+    AppRouteModule,
+    MatSnackBarModule,
+    MatProgressBarModule,
     NgxIndexedDBModule.forRoot(IndexDBConfig) 
     
   ],

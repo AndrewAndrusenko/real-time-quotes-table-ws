@@ -1,23 +1,34 @@
+<button 
+  class="desktop-buttons"
+  mat-icon-button (click)="showPanels=!showPanels" 
+  [style.opacity]="showPanels? 1: 0.5"
+  [matTooltip]="showPanels? 'hide panels':'show panels'"
+  > Panels
+  <mat-icon>{{showPanels? 'toggle_on':'toggle_off'}}</mat-icon>
+</button>
 <main class="content">
-  <section class="testing-panel">
+  <section class="testing-panel" *ngIf="showPanels">
     <app-testing-panel></app-testing-panel>
   </section>
-  <details class="mng-panel" open>
+  <details class="mng-panel" open *ngIf="showPanels">
   <summary class="mng-panel__header" >
     Connection Panel - Stream Status:{{'\n'}}
     <span #status
       class="mng-panel__header__status" 
-      [ngClass]="(this.quotesService.streamActive$ | async) && (this.quotesService.connectionOk$ |async)? 'Connected': (this.quotesService.connectionOk$ |async)? 'Disconnected':''" 
+      [ngClass]="
+      (this.quotesService.streamActive$ | async) && (this.quotesService.connectionState$ |async)==='connected'? 'Connected': 
+      (this.quotesService.connectionState$ |async)==='connected'? 'Disconnected':''" 
       >
       {{(this.quotesService.streamActive$ | async)? ' Active':' No stream'}}
     </span>
   </summary>
-  <section class="connection-panel">
+
+  <section class="connection-panel" >
     <button  mat-button class="connection-panel__button"    
-      [ngClass]="(this.quotesService.connectionOk$ |async)?  'stop-connection' : 'start-connection' " 
+      [ngClass]="(this.quotesService.connectionState$ |async)=='connected'?  'stop-connection' : 'start-connection' " 
       (click)="manageStream()" >
-      <mat-icon class="connection-panel__button-icon">{{(this.quotesService.connectionOk$ |async) ? 'cast_connected' : 'cast'}}</mat-icon>
-      <span class="connection-panel__button-text">{{ (this.quotesService.connectionOk$ |async) ? "Stop " : "Connect to" }} WS</span>
+      <mat-icon class="connection-panel__button-icon">{{(this.quotesService.connectionState$ |async)==='connected' ? 'cast_connected' : 'cast'}}</mat-icon>
+      <span class="connection-panel__button-text">{{ (this.quotesService.connectionState$ |async)==='connected' ? "Stop " : "Connect to" }} WS</span>
     </button>
     <span class="connection-panel__cache">
       <label for="cache" class="connection-panel__cache-label">Cache Time:</label>
@@ -30,33 +41,62 @@
     </span>
   </section>
   </details>
-    <mat-form-field  class="content__filter">
-      <mat-label >Filter - symbols separated by comma </mat-label>
-      <input type="text"
-        placeholder="Pick one"
-        aria-label="Number"
-        matInput
-        [formControl]="filterQuotesList"
-        [matAutocomplete]="auto">
-      <button matSuffix mat-icon-button aria-label="Clear" matTooltip="Clear Filter"  (click)="
+  <div class="process-state" *ngIf="['Reconnecting','Connecting'].includes(this.quotesService.connectionState$ |async)">
+    <label >{{(this.quotesService.connectionState$ |async)}}...</label>
+    <label *ngIf="['Reconnecting'].includes(this.quotesService.connectionState$ |async)">
+      Attempt {{(this.quotesService.connectionRepeat$ |async).current}} out of {{(this.quotesService.connectionRepeat$ |async).total}}
+    </label>
+    <mat-progress-bar mode="query"></mat-progress-bar>
+  </div>
+  <mat-form-field  class="content__filter">
+    <mat-label >Filter separated by comma </mat-label>
+    <input type="text" 
+      class="content__filter__input"
+      placeholder="Symbol1, symbol2"
+      #filter
+      aria-label="Number"
+      matInput
+      [formControl]="filterQuotesList"
+      [matAutocomplete]="auto">
+    <button 
+      *ngIf="filter.value"
+      class="content__filter__button"
+      matSuffix mat-icon-button aria-label="Clear" 
+      matTooltip="Clear Filter" 
+      (click)="
         filterQuotesList.patchValue('');
         $event.stopPropagation();">
-        <mat-icon class="content__filter__button-icon">clear</mat-icon>
-      </button>
-      <button *ngIf="newFilter|async" matSuffix mat-icon-button aria-label="Save" matTooltip="Save Filter"  (click)="saveFilter(filterQuotesList.value)">
-        <mat-icon class="content__filter__button-icon">save</mat-icon>
-      </button>
-      <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" >
-        <mat-option *ngFor="let filterEl of savedFilters" [value]="filterEl">
-          <div class="content__filter__option-item"> 
-            <span> {{filterEl}}</span>  
-            <button  matSuffix mat-icon-button aria-label="Delete" matTooltip="Delete Filter"  (click)="deleteFilter($event,filterEl)">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
+      <mat-icon class="content__filter__button-icon">clear</mat-icon>
+    </button>
+    <button 
+      *ngIf="(newFilter|async) && filter.value" 
+      class="content__filter__button"
+      matSuffix mat-icon-button aria-label="Save" 
+      matTooltip="Save Filter"  
+      (click)="saveFilter(filterQuotesList.value)">
+      <mat-icon class="content__filter__button-icon">save</mat-icon>
+    </button>
+    <button  
+      class="content__filter__button"   matSuffix   mat-icon-button
+      [style.opacity]="showPanels? 1: 0.5"
+      [matTooltip]="showPanels? 'hide panels':'show panels'"
+      (click)="
+        $event.stopPropagation();
+        showPanels=!showPanels;" 
+      >
+      <mat-icon class="content__filter__button-icon">{{showPanels? 'more_vert':'more_vert'}}</mat-icon>
+    </button>
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" >
+      <mat-option *ngFor="let filterEl of savedFilters" [value]="filterEl">
+        <div class="content__filter__option-item"> 
+          <span> {{filterEl}}</span>  
+          <button  matSuffix mat-icon-button aria-label="Delete" matTooltip="Delete Filter"  (click)="deleteFilter($event,filterEl)">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
   <section class="quotes-table">
     <li class="quotes-table quotes-table__header">
       <span class="quotes-table__header-col">Symbol</span>

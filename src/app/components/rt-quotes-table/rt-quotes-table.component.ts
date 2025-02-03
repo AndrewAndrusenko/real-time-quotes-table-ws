@@ -11,8 +11,10 @@ import { AppStorage, StorageService, StorageType } from 'src/app/services/storag
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RTQuotesTableComponent {
+  public processState : 'Connecting...'|'Reconnecting...'|null = null;
+  public showPanels:boolean = true;
   public filterQuotesList = new FormControl ('');
-  public savedFilters = ['A,C','A']
+  public savedFilters = []
   public cachedTime = 500;
   public quotesData$ : Observable<IRate[]>; //Subsction to the quotes stream
   public newFilter:Observable<boolean>;
@@ -28,7 +30,7 @@ export class RTQuotesTableComponent {
     this.subsriptions.add(this.appStorage.getStorageData('custom-filter').subscribe(filters=>{
       this.savedFilters= (filters as {code:string,filter:string[]}).filter
     }))
-    this.subsriptions.add(this.quotesService.connectionOk$.asObservable().pipe(filter(st=>st===true)).subscribe(()=>{this.getQuotesStream(this.cachedTime)}));
+    this.subsriptions.add(this.quotesService.connectionState$.asObservable().pipe(filter(st=>st==='connected')).subscribe(()=>{this.getQuotesStream(this.cachedTime)}));
     this.newFilter = this.filterQuotesList.valueChanges.pipe(
       debounceTime(300),
       switchMap((newFilter)=>of(!this.savedFilters.includes(newFilter.toLocaleUpperCase())))
@@ -38,10 +40,9 @@ export class RTQuotesTableComponent {
     this.subsriptions.unsubscribe();
   }
   manageStream () {
-    this.quotesService.connectionOk$.getValue()? this.disconnectedFromStream() : this.quotesService.connectToWSServer()
+    this.quotesService.connectionState$.getValue()==='connected'? this.disconnectedFromStream() : this.quotesService.connectToWSServer()
   }
   resetCacheTime(caheInput:HTMLInputElement) {
-    console.log('caheInput',caheInput.value,this.cachedTime )
     this.getQuotesStream(this.cachedTime!==Number(caheInput.value)? Number(caheInput.value) : this.cachedTime )
   }
   getQuotesStream(cahceTime = 500) {//Subscribe to the stream of quotes and handle update of quotes array

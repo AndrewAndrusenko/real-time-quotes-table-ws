@@ -8,7 +8,7 @@
   --color-text-light:#FFFFFF;
   --color-text-header:#53565b;
   --background-color:rgb(193, 201, 213);
-
+  --color-text-error:#e75a5a;
   --mobile-font-size:12px;
   
   --border: 1px solid var(--color-dark);
@@ -28,4 +28,21 @@
 }
 body{
   background-color: var(--background-color);
+}
+.error-snackBar {
+  background-color: var(--color-text-error);
+  color: #030303;
+  white-space: pre-wrap;
+  max-width: 96vw !important;
+}
+.success-snackBar {
+  background-color:  #2196f3;
+  color: #030303;
+  white-space: pre-wrap;
+  max-width: 96vw !important;
+}
+.mat-simple-snackbar-action {
+  background-color:#242222;
+  border-radius: 5px;
+  color: #eee6e6;
 }

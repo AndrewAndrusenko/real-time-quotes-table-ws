@@ -1,5 +1,7 @@
 @import '../../../styles/mixins_media.scss';
-
+:host {
+  display: flex;
+}
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
   transition: background-color 0s 600000s, color 0s 600000s !important;
@@ -14,18 +16,16 @@ input:-webkit-autofill:focus {
 .material-icons {
   line-height: 0.9 !important;
 }
-/* .filter__option {
-  display: flex!important;
-  justify-content: space-between!important;
-  gap: 5vw!important;
-// flex-direction: column!important;
-  color: red!important;
-} */
+.desktop-buttons {
+  @include mobile {
+    display: none;
+  }
+}
 .content {
 
   width: var(--contentWidth);
   background-color: inherit;
-  margin-top: 2vh;
+  // margin-top: 2vh;
   margin-left: 10vw;
   
   &__divider{
@@ -195,8 +195,14 @@ input:-webkit-autofill:focus {
   &__filter {
     width: var(--contentWidth);
 
+    &__button {
+      margin-left: 1vw;
+      @include mobile {
+        margin-left: 4vw;
+      }
+    }
     &__button-icon {
-      transform: scale(1.2);
+      transform: scale(1.8);
     }
     &__option-item {
       display: flex;
