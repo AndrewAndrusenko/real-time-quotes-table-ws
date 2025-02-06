@@ -1,7 +1,7 @@
 <main>
   <details open class="mng-panel">
   <summary class="mng-panel__header">
-    Test Server Panel - Server Status:
+    Test Server Panel - Server:
     <span 
       class="mng-panel__header__status" 
       [ngClass]="(this.testingService.serverConnection$ | async)? 'Connected':'Disconnected'">

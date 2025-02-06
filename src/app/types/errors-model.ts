@@ -1,9 +1,12 @@
+import { TButtonName } from "../services/snacks.service"
+import {ENV} from '../../environments/environment'
 export interface IErrorHandler {
   code:number,
   messageToUI:string,
   retryConnection:boolean,
   errmsgIgnore?:boolean
-  persistErr?:boolean
+  persistErr?:boolean,
+  authErr?:boolean
 };
 export const SERVER_ERRORS = new Map <number, IErrorHandler> ([
   [0, {
@@ -21,7 +24,8 @@ export const SERVER_ERRORS = new Map <number, IErrorHandler> ([
   [1012, {
     code:1012,
     messageToUI:'Token jwt is expired',
-    retryConnection:false
+    retryConnection:true,
+    authErr:true
   }],
   [1011, {
     code:1011,
@@ -34,3 +38,43 @@ export const SERVER_ERRORS = new Map <number, IErrorHandler> ([
     retryConnection:true
   }],
 ])
+
+export interface IErrorUI extends Error {
+  msg:string
+  ml:string
+}
+export interface IErrorCode {
+    message:string,
+    redirect:boolean,
+    externalRoute?:boolean,
+    route:string,
+    buttonName:TButtonName
+}
+export const errorsCode = new Map<number,IErrorCode> (
+[
+  [403,{
+    message:'Access is forbidden',
+    route:'back',
+    redirect:false,
+    buttonName:'Back'
+  }],
+  [401,{
+    message:'Your session is not authenticated.\n You have to Log In again',
+    route:ENV.AUTH_SERVER_UI_ADDRESS,
+    externalRoute:true,
+    redirect:true,
+    buttonName:'Go to login'
+  }],
+  [0,{
+    message:'Service is unavailable',
+    route:'',
+    redirect:false,
+    buttonName:'Okay'
+  }]
+]
+)
+export const errorsInfo = new Map<string,string> (
+ [
+  ['ECONNREFUSED', 'Connection has been refused']
+]
+)

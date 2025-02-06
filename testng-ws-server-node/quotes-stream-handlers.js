@@ -55,7 +55,7 @@ export function simulateRatesFlow (wsServer, timeToWork = 60 * 30, intervalToEmi
             rate.chgBid = (rate.bid/symbol.OPEN - 1) 
             rate.open= symbol.OPEN;
             ratesSet.push(rate);
-            ['LLY'].includes(rate.symbol)? process.send([rate.symbol,rate.bid,rate.time ]):null
+            // ['LLY'].includes(rate.symbol)? process.send([rate.symbol,rate.bid,rate.time ]):null
           }
         });
         wsServer.clients.forEach(client => client.readyState === 1 && client.manage !=='/manage_connection'? client.send(JSON.stringify(ratesSet)) : null);

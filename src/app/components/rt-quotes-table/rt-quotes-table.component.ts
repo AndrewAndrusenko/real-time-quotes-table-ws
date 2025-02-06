@@ -11,7 +11,6 @@ import { AppStorage, StorageService, StorageType } from 'src/app/services/storag
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RTQuotesTableComponent {
-  public processState : 'Connecting...'|'Reconnecting...'|null = null;
   public showPanels:boolean = true;
   public filterQuotesList = new FormControl ('');
   public savedFilters = []

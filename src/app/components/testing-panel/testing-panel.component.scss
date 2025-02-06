@@ -24,18 +24,13 @@ main {
    
     &__header {
       border: 2px groove rgb(229, 226, 226);
+      min-height: 4vh !important;
       cursor: pointer;
       padding-left: 5px ;
-      border-radius: var(--border-radius-large);
+      border-radius: 10px;
       color: var(--color-text-header);
       @include mobile {
-        padding-left: 4vw;
-        white-space:pre-line;
-      }
-      &__status {
-        @include mobile {
-          padding-left: 4vw;
-        }
+        font-size:14px !important;
       }
       &__status.Connected {
         color: #0072ff;

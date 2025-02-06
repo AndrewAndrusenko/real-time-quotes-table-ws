@@ -20,6 +20,8 @@ import { RouterModule } from '@angular/router';
 import { AppRouteModule } from './app.routes';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSnackBarModule} from '@angular/material/snack-bar'
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HttpErrorsHandlerInterceptor } from './services/errors-http.interceptor';
 export const IndexDBConfig: DBConfig  = {
   name: 'RTQ',
   version: 1,
@@ -54,11 +56,17 @@ export const IndexDBConfig: DBConfig  = {
     AppRouteModule,
     MatSnackBarModule,
     MatProgressBarModule,
+    HttpClientModule,
     NgxIndexedDBModule.forRoot(IndexDBConfig) 
     
   ],
   providers: [
     provideAnimations(),
+    {
+      provide:HTTP_INTERCEPTORS,
+      useClass:HttpErrorsHandlerInterceptor,
+      multi:true
+    },
     [CookieService]
   ],
   bootstrap: [AppComponent],

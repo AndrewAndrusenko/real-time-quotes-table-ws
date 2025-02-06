@@ -1,1 +1,1 @@
-export type TConnectionStatus = 'disconnected'|'connected'|'Reconnecting'|'Connecting'
+export type TConnectionStatus = 'disconnected'|'connected'|'Reconnecting'|'Connecting'|'Disconnecting'

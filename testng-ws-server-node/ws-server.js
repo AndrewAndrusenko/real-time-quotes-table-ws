@@ -57,8 +57,9 @@ function settingClientHandler (ws,req) {
   newClient.manage=req.url; //adding property to differ managing stream sockets from sockets receiving only quotes stream 
   newClient.id=req.headers['sec-websocket-key']
   process.send(['Client connected ID:',newClient.id,'| URL:', req.url]);
+  process.send(['newClient',...Array.from(wsServer.clients).map(el=>el.id)] )
   ws.on('error',(event)=>{process.send(['Ws Server error',event])})
-  ws.on("close", () =>   process.send(['Client disconnected ID:',ws.id,'| URL:',ws.manage]));
+  ws.on("close", (ev) =>   process.send(['Client disconnected ID:',ws.id,'| URL:',ws.manage,ev]));
   ws.on("message", (message) => handleIncomingMessage (message));// handle commands sent to server to manage streams of quotes
 }
 

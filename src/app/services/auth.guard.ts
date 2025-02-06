@@ -11,5 +11,5 @@ export const verifyAccess:CanActivateChildFn = (
     const snack = inject(MatSnackBar)
 
     if (cookies.get('A3_AccessToken_Shared')=='') {snack.open('Access is forbidden','Ok')};
-    return cookies.get('A3_AccessToken_Shared')? true:false
+    return cookies.get('A3_AccessToken_Shared')? true:true
   }

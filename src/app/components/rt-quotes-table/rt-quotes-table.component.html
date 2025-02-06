@@ -11,8 +11,8 @@
     <app-testing-panel></app-testing-panel>
   </section>
   <details class="mng-panel" open *ngIf="showPanels">
-  <summary class="mng-panel__header" >
-    Connection Panel - Stream Status:{{'\n'}}
+  <summary class="mng-panel__header" > 
+    Connection Panel - Stream:
     <span #status
       class="mng-panel__header__status" 
       [ngClass]="
@@ -24,8 +24,10 @@
   </summary>
 
   <section class="connection-panel" >
-    <button  mat-button class="connection-panel__button"    
-      [ngClass]="(this.quotesService.connectionState$ |async)=='connected'?  'stop-connection' : 'start-connection' " 
+    <button  mat-button class="connection-panel__button"  
+      [disabled]="['Reconnecting','Connecting','Disconnecting'].includes(this.quotesService.connectionState$ |async)" 
+      [ngClass]="(this.quotesService.connectionState$ |async)==='connected'?  'stop-connection' : null " 
+      [ngClass]="(this.quotesService.connectionState$ |async)==='disconnected'?  'start-connection': null " 
       (click)="manageStream()" >
       <mat-icon class="connection-panel__button-icon">{{(this.quotesService.connectionState$ |async)==='connected' ? 'cast_connected' : 'cast'}}</mat-icon>
       <span class="connection-panel__button-text">{{ (this.quotesService.connectionState$ |async)==='connected' ? "Stop " : "Connect to" }} WS</span>
@@ -41,7 +43,7 @@
     </span>
   </section>
   </details>
-  <div class="process-state" *ngIf="['Reconnecting','Connecting'].includes(this.quotesService.connectionState$ |async)">
+  <div class="process-state" *ngIf="['Reconnecting','Connecting','Disconnecting'].includes(this.quotesService.connectionState$ |async)">
     <label >{{(this.quotesService.connectionState$ |async)}}...</label>
     <label *ngIf="['Reconnecting'].includes(this.quotesService.connectionState$ |async)">
       Attempt {{(this.quotesService.connectionRepeat$ |async).current}} out of {{(this.quotesService.connectionRepeat$ |async).total}}
@@ -50,7 +52,7 @@
   </div>
   <mat-form-field  class="content__filter">
     <mat-label >Filter separated by comma </mat-label>
-    <input type="text" 
+    <input type="text"
       class="content__filter__input"
       placeholder="Symbol1, symbol2"
       #filter
@@ -76,7 +78,7 @@
       (click)="saveFilter(filterQuotesList.value)">
       <mat-icon class="content__filter__button-icon">save</mat-icon>
     </button>
-    <button  
+    <button  #panelsButton
       class="content__filter__button"   matSuffix   mat-icon-button
       [style.opacity]="showPanels? 1: 0.5"
       [matTooltip]="showPanels? 'hide panels':'show panels'"
@@ -86,7 +88,7 @@
       >
       <mat-icon class="content__filter__button-icon">{{showPanels? 'more_vert':'more_vert'}}</mat-icon>
     </button>
-    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" >
+    <mat-autocomplete #auto="matAutocomplete" >
       <mat-option *ngFor="let filterEl of savedFilters" [value]="filterEl">
         <div class="content__filter__option-item"> 
           <span> {{filterEl}}</span>  
@@ -97,7 +99,7 @@
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
-  <section class="quotes-table">
+  <section class="quotes-table" #table>
     <li class="quotes-table quotes-table__header">
       <span class="quotes-table__header-col">Symbol</span>
       <span class="quotes-table__header-col">Bid</span>

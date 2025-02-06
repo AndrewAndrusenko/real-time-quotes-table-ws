@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, repeat, retry } from 'rxjs';
+import { BehaviorSubject, catchError, EMPTY, repeat, retry } from 'rxjs';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { ENV } from 'src/environments/environment';
 import { SnacksService } from './snacks.service';
@@ -54,7 +54,14 @@ export class TestingMngService { //Service to handle testing functionaly
       })
     this.webSocketTest.pipe(
       retry({count:2, delay:ENV.RETRY_INTERVAL }), 
-      repeat({delay: ENV.RETRY_INTERVAL })
+      repeat({delay: ENV.RETRY_INTERVAL }),
+      catchError(err=>{
+        console.log('catchError',err)
+        this.streamStarted$.next(false);
+        this.serverConnection$.next(false);
+        this.webSocketTest.unsubscribe();
+        return EMPTY
+      })
     ).subscribe({ 
       error: err=>{
         console.log('error',err)
