@@ -21,7 +21,7 @@ export class RTQuotesTableComponent {
   private appStorage:AppStorage;
   constructor(
     public quotesService: QuotesDataService,
-    private storageService:StorageService
+    private storageService:StorageService,
   ) {
     this.appStorage = this.storageService.initStorageObj(StorageType.IndexDB)
   }
@@ -37,6 +37,9 @@ export class RTQuotesTableComponent {
   }
   ngOnDestroy(): void {
     this.subsriptions.unsubscribe();
+  }
+  ngAfterViewInit(): void {
+    this.manageStream () //remove?
   }
   manageStream () {
     this.quotesService.connectionState$.getValue()==='connected'? this.disconnectedFromStream() : this.quotesService.connectToWSServer()

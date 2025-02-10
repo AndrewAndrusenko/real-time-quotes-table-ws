@@ -27,7 +27,7 @@ export class QuotesDataService { //Service to handle data
     private snacksService:SnacksService,
     private authService:AuthService
    ) {}
-  private quotesWS$: WebSocketSubject<IRate[]|{message:string}>;
+  private quotesWS$: WebSocketSubject<IRate[]|{message:string}|{cmd:'close'}>;
   public connectionState$ = new BehaviorSubject <TConnectionStatus> ('disconnected') //Connection status for UI
   public connectionRepeat$ = new BehaviorSubject <{current:number,total:number}|null> (null) //Connection status for UI
   public streamActive$ = new BehaviorSubject <boolean> (false) //Stream status for UI
@@ -35,7 +35,6 @@ export class QuotesDataService { //Service to handle data
   private closeConnectionErrorCode:number;
   private conecctionRetryCount:number = 2;
   private connectionAttemptN:number = 0;
-  // private noReconnectErrors:number[] = Array.from(SERVER_ERRORS).filter(el=>el[1].retryConnection===false).map(el=>el[0])
   public connectToWSServer(endpoint = ENV.TEST_WS_ENDPOINT) {
     this.connectionState$.next('Connecting')
     this.quotesWS$ = webSocket({
@@ -45,30 +44,25 @@ export class QuotesDataService { //Service to handle data
         this.closeConnectionErrorCode = null;
         this.connectionAttemptN = 0;
       }},
-      closingObserver:{next:()=>console.log('closing')},
       closeObserver:{next:(event)=>{
-        console.log('UI connection is closed with code: ' ,event.code,this.closeConnectionErrorCode);
-        SERVER_ERRORS.get(this.closeConnectionErrorCode)?.persistErr? null: this.closeConnectionErrorCode = event.code
+        this.closeConnectionErrorCode = this.closeConnectionErrorCode || event.code
+        console.log('UI connection is closed with code: in code',this.closeConnectionErrorCode);
       }}
     });
     
     this.quotesWS$
     .pipe(
       catchError(err=>{
-        this.closeConnectionErrorCode = err.code || this.closeConnectionErrorCode
-        if (SERVER_ERRORS.get(this.closeConnectionErrorCode).retryConnection){
+        console.log('catchError',err.code )
+        if (SERVER_ERRORS.get(this.closeConnectionErrorCode)?.retryConnection){
           throwError(()=>err);
           this.connectionState$.next('disconnected')
        } 
        return EMPTY;
      }),
       this.handleRepeatErrors(),
-      filter(data=>('message' in Object(data))),
-    )
+      filter(data=>('message' in Object(data))))
     .subscribe({      
-      error: err=>{
-        console.log('subscribe error',err)
-      },
       complete: ()=>{
         this.connectionState$.next('disconnected')
         this.streamActive$.next(false)
@@ -90,36 +84,36 @@ export class QuotesDataService { //Service to handle data
     });
   }
 
-  private handleRepeatErrors <T>():MonoTypeOperatorFunction<T> {
-    return repeat({
+ private handleRepeatErrors <T>():MonoTypeOperatorFunction<T> {
+   return repeat({
       delay:()=>{
         this.connectionAttemptN ++
-        return of (SERVER_ERRORS.get(this.closeConnectionErrorCode)?.authErr === true)
-          .pipe(
-            switchMap((jwtError) =>jwtError===true? this.authService.renewAccessJWT() : of(false)),
-            switchMap(() => SERVER_ERRORS.get(this.closeConnectionErrorCode).retryConnection? of(false) : EMPTY ),
-            catchError(err=>{
-              console.log('err c',err )
-              this.connectionAttemptN = this.conecctionRetryCount;
-              this.connectionState$.next('disconnected')
-              return throwError(()=>err)
-            }),
-            tap(()=> {
-              this.connectionRepeat$.next({current:this.connectionAttemptN,total:this.conecctionRetryCount})
-              console.log(`Trying to reconnect due to error ${this.closeConnectionErrorCode }. Attempt ${this.connectionAttemptN} out of ${this.conecctionRetryCount}`);
-              this.connectionState$.next('Reconnecting');
-              if (this.conecctionRetryCount+1 === this.connectionAttemptN) {
-                this.connectionAttemptN = 0
-                this.quotesWS$.unsubscribe()
-                this.connectionState$.next('disconnected');
-                SERVER_ERRORS.get(this.closeConnectionErrorCode).errmsgIgnore? null:
-                this.snacksService.openSnack(`Error code: ${this.closeConnectionErrorCode}. ${SERVER_ERRORS.get(1).messageToUI} `,'Okay','error-snackBar')
-                return EMPTY; 
-              };
-              return of({});
-            })
-          )
-        }
+        return of (SERVER_ERRORS.get(this.closeConnectionErrorCode)?.authErr === true).pipe(
+          tap((jwtError) =>jwtError===true? setTimeout(() => this.authService.refreshJWTSub.next(true), 10) : null),
+          switchMap((jwtError) =>jwtError===true? this.authService.jwtRefreshedSub : of(false)),
+          switchMap(() => SERVER_ERRORS.get(this.closeConnectionErrorCode)?.retryConnection===false? EMPTY: of(true)),
+          catchError(err=>{
+            console.log('error handleRepeatErrors',err )
+            this.connectionAttemptN = this.conecctionRetryCount;
+            this.connectionState$.next('disconnected')
+            return throwError(()=>err)
+          }),
+          tap(()=> {
+            this.connectionRepeat$.next({current:this.connectionAttemptN,total:this.conecctionRetryCount})
+            console.log(`QuotesDataService: Trying to reconnect due to error ${this.closeConnectionErrorCode }. Attempt ${this.connectionAttemptN} out of ${this.conecctionRetryCount}`);
+            this.connectionState$.next('Reconnecting');
+            if (this.conecctionRetryCount+1 === this.connectionAttemptN) {
+              this.connectionAttemptN = 0
+              this.quotesWS$.closed? null : this.quotesWS$.unsubscribe();
+              this.connectionState$.next('disconnected');
+              SERVER_ERRORS.get(this.closeConnectionErrorCode).errmsgIgnore? null:
+              this.snacksService.openSnack(`Error code: ${this.closeConnectionErrorCode}. ${SERVER_ERRORS.get(1).messageToUI} `,'Okay','error-snackBar')
+              return EMPTY; 
+            };
+            return of({});
+          })
+        )
+      }
     })
   }
 
@@ -152,19 +146,16 @@ export class QuotesDataService { //Service to handle data
             errMsg = `Warning: There has been no new quote for ${ENV.STREAM_TIMEOUT/1000} sec...`
             break
           }
-          console.log('this.quotesWS$.closed',this.quotesWS$.closed )
-          this.quotesWS$.closed===false && [1006,1012].includes(err.code)===false? this.snacksService.openSnack(errMsg,'Okay','error-snackBar') : null;
+          this.quotesWS$.closed===false && this.connectionState$.getValue()!=='Reconnecting' ? this.snacksService.openSnack(errMsg,'Okay','error-snackBar') : null;
           return of(this.quotesDataArray)
         }),
       )));
   };
 
   public disconnectFromServer () {
-    this.closeConnectionErrorCode = 0;
-    console.log('disconnectFromServer',this.closeConnectionErrorCode, this.quotesWS$.closed )
     if (this.quotesWS$.closed===false) {
       this.connectionState$.next('Disconnecting')
-      this.quotesWS$.unsubscribe();
+      this.quotesWS$.next({cmd:'close'})
     }
   }
 }

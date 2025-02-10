@@ -9,6 +9,7 @@ import readline from 'node:readline'
 import { EMPTY,catchError } from 'rxjs';
 import * as auth from './auth-module.js';
 import {ENV} from './env/env.js'
+import {SERVER_ERRORS} from './models/error-model.js'
 var serverStatus = 'none';
 var rl = readline.createInterface({
   input: process.stdin, 
@@ -45,8 +46,8 @@ wsServer.on("connection", async (ws, req) => {
   auth.verifyAccess(req.headers.cookie)
   .pipe(
     catchError(error=>{
-      process.send(['jwt err:', error.message]); //REFACTOR!!
-      ws.close(1012, Buffer.from( error.message,  "utf8"));
+      process.send(['jwt err:',SERVER_ERRORS.get('JWT_EXPIRED').code, error.message]); //REFACTOR!!
+      ws.close(SERVER_ERRORS.get('JWT_EXPIRED').code, Buffer.from( error.message,  "utf8"));
       return EMPTY;
     }))
   .subscribe(()=>settingClientHandler(ws,req))
@@ -57,13 +58,13 @@ function settingClientHandler (ws,req) {
   newClient.manage=req.url; //adding property to differ managing stream sockets from sockets receiving only quotes stream 
   newClient.id=req.headers['sec-websocket-key']
   process.send(['Client connected ID:',newClient.id,'| URL:', req.url]);
-  process.send(['newClient',...Array.from(wsServer.clients).map(el=>el.id)] )
   ws.on('error',(event)=>{process.send(['Ws Server error',event])})
-  ws.on("close", (ev) =>   process.send(['Client disconnected ID:',ws.id,'| URL:',ws.manage,ev]));
-  ws.on("message", (message) => handleIncomingMessage (message));// handle commands sent to server to manage streams of quotes
+  ws.on("close", (ev) => process.send(['Client disconnected ID:',ws.id,'| URL:',ws.manage,ev]));
+  ws.on("message", (message) => handleIncomingMessage (message,ws));// handle commands sent to server to manage streams of quotes
 }
 
-function handleIncomingMessage (message) {
+function handleIncomingMessage (message, ws) {
+
   let cmdIns = JSON.parse(message.toString());
   switch (cmdIns.cmd) {
     case "start": //start new stream and stop 
@@ -74,20 +75,23 @@ function handleIncomingMessage (message) {
       quotesStreamHandlers.stopQuotesStreams();
       quotesStreamHandlers.shareConnectionStatus(wsServer,'stream_stopped');
     break;
+    case "close":
+      ws.close(SERVER_ERRORS.get('CLOSE_USER_CONNECTION').code, Buffer.from( 'Request to close connection',  "utf8"))
+    break
   }
 }
 
 function restartWsServer() {
-  serverStatus = 'restart';
+  serverStatus = 'RESTART_SERVER';
   closeWsServer (serverStatus);
 }
 function closeProcess () {
-  serverStatus = 'close';
+  serverStatus = 'CLOSE_SERVER';
   closeWsServer(serverStatus);
 }
-function closeWsServer (msg) {
+function closeWsServer (serverAction) {
   process.send(['Server process is closing... Clients connected:', wsServer.clients.size,'PID',process.pid]);
-  wsServer.clients.forEach(client => client.close(1011, Buffer.from(msg,  "utf8")));
+  wsServer.clients.forEach(client => client.close(SERVER_ERRORS.get(serverAction).code, Buffer.from(serverAction,  "utf8")));
   wsServer.close();
   httpServer.close();
 }

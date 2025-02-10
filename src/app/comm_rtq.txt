@@ -40,3 +40,25 @@ FrontEnd:
 5. TestingMngService - error handler is Included
 6. errors-model.ts has been expanded with server errors models
 Backend - Minor Fixing
+
+10/02/25
+Auto-refreshing expired JWT token & Errors model
+FrontEnd:
+1. Seamless refreshing expired JWT token has been: refactored AuthService and QuotesDataService TestingMngService
+2. Fixed race token refreshing condition. Only one api call is being used to refresh token. Other request are filtered via exhaustMap and subject pattern
+  refactored AuthService and QuotesDataService TestingMngService
+3. errors-model.ts has been extended with server error constant map. Errors codes has been fixed and changed correctly
+4. QuotesDataService: Disconnecting feature has been refactored. UI send request to the server to close connection. Server closes connection and send appropriate 
+closing code - 4001
+5. JWT expired error code has been changed to custom - 4000
+6. TestingMngService: Refactored reconnecting feature introducing custom handler for jwt expiration and reconnecting attempts managing
+Backend:
+1. error-model.ts: Created type, interface and errors map-SERVER_ERRORS in order to strictly determine errors codes produced by the server
+2. ws-server.js: 
+  - Refactored by implementing retrieving  errors data from the error model map and using literals as keys
+  - Implemented feature of closing a client by its request and sending appropriate code(4001)
+  - Refactored restarting and closing WS server by using status literals and notifying client with correct codes of closing their connecions
+3 wss.js: Refactored instructions to close ws server
+
+
+

@@ -59,6 +59,7 @@ main {
         @include tablet {
           max-height: 50px;
           height: 5vh;
+          min-height: 40px;
         }
   
         @include mobile {

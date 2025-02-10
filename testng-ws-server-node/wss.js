@@ -47,11 +47,11 @@ function commandHandler (command) {
       console.log('\x1b[90mRestarting server ...','\x1b[0m')
       serverStatus = 'restart'
       serverForkProcess.send('rs');
-      break;
-      case 'exit':
+    break;
+    case 'exit':
       console.log('\x1b[90mStopping server and process ...','\x1b[0m')
       serverStatus = 'closing'
-      serverForkProcess.send('rs');
+      serverForkProcess.send('exit');
     break;
     case 'start':
       serverForkProcess.send(command);

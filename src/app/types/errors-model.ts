@@ -5,37 +5,50 @@ export interface IErrorHandler {
   messageToUI:string,
   retryConnection:boolean,
   errmsgIgnore?:boolean
-  persistErr?:boolean,
   authErr?:boolean
 };
 export const SERVER_ERRORS = new Map <number, IErrorHandler> ([
-  [0, {
-    code:0,
-    messageToUI:'User closed connection',
-    retryConnection:false,
-    errmsgIgnore:true,
-    persistErr:true
-  }],
   [1, {
     code:1,
     messageToUI:'Unable to reconnect to the server',
     retryConnection:false
   }],
-  [1012, {
-    code:1012,
-    messageToUI:'Token jwt is expired',
-    retryConnection:true,
-    authErr:true
-  }],
-  [1011, {
-    code:1011,
-    messageToUI:'Server is restarting..',
+  [1005, {
+    code:1006,
+    messageToUI:'Server is unavailable',
     retryConnection:true
   }],
   [1006, {
     code:1006,
     messageToUI:'Server is unavailable',
     retryConnection:true
+  }],
+  [1011, {
+    code:1011,
+    messageToUI:'Internal Error..',
+    retryConnection:true
+  }],
+  [1012, {
+    code:1012,
+    messageToUI:'Server is restarting..',
+    retryConnection:true
+  }],
+  [1013, {
+    code:1013,
+    messageToUI:'Server is closing..',
+    retryConnection:true
+  }],
+  [4000, {
+    code:4000,
+    messageToUI:'Token jwt is expired',
+    retryConnection:true,
+    authErr:true
+  }],
+  [4001, {
+    code:4001,
+    messageToUI:'User closed connection',
+    retryConnection:false,
+    errmsgIgnore:true,
   }],
 ])
 

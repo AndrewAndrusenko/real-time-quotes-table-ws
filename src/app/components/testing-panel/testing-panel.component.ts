@@ -17,17 +17,19 @@ export class TestingPanelComponent {
   constructor( public testingService: TestingMngService, private fb:FormBuilder) {
     this.manageStreamForm = this.fb.group ({
       cmd: ['start'],
-      timeToWork: [50, { validators:  [Validators.required,Validators.pattern('[0-9]*')]}],
+      timeToWork: [30, { validators:  [Validators.required,Validators.pattern('[0-9]*')]}],
       intervalToEmit: [50,{ validators:  [Validators.required,Validators.pattern('[0-9]*')]}],
       market: ['n']
     })
   }
-
+  ngAfterViewInit(): void {
+   this.manageStream () //remove
+  }
   manageStream() {
     const cmd = this.testingService.streamStarted$.getValue()? 'stop':'start'
     this.manageStreamForm.get('cmd').patchValue(cmd)
     this.testingService.sendMessageToServer(this.manageStreamForm.value);
   }
- get interval() {return this.manageStreamForm.get('intervalToEmit')}
- get timeToWork() {return this.manageStreamForm.get('timeToWork')}
+  get interval() {return this.manageStreamForm.get('intervalToEmit')}
+  get timeToWork() {return this.manageStreamForm.get('timeToWork')}
 }
