@@ -76,8 +76,7 @@ export class TestingMngService { //Service to handle testing functionaly
               this.snacksService.openSnack(`Error code: ${this.closeConnectionErrorCode}. ${SERVER_ERRORS.get(1).messageToUI} `,'Okay','error-snackBar')
               return EMPTY; 
             };
-            console.log(`TestingMngService: Trying to reconnect due to error 
-              ${this.closeConnectionErrorCode }. Attempt ${this.connectionAttemptN} out of ${this.conecctionRetryCount}`);
+            console.log(`TestingMngService: Trying to reconnect due to error ${this.closeConnectionErrorCode }. Attempt ${this.connectionAttemptN} out of ${this.conecctionRetryCount}`);
             return of({})
           })
         ) 
@@ -91,7 +90,6 @@ export class TestingMngService { //Service to handle testing functionaly
             console.log('stream_stopped',);
             this.streamStarted$.next(false) 
             this.cmdCurrent = null;
-            this.webSocketTest.closed? null : this.webSocketTest.unsubscribe();
             break;
           case 'stream_started': 
             console.log('stream_started',);

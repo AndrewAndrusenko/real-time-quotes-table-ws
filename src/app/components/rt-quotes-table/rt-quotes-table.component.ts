@@ -39,7 +39,7 @@ export class RTQuotesTableComponent {
     this.subsriptions.unsubscribe();
   }
   ngAfterViewInit(): void {
-    this.manageStream () //remove?
+    this.manageStream ()
   }
   manageStream () {
     this.quotesService.connectionState$.getValue()==='connected'? this.disconnectedFromStream() : this.quotesService.connectToWSServer()

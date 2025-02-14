@@ -23,7 +23,7 @@ export class TestingPanelComponent {
     })
   }
   ngAfterViewInit(): void {
-   this.manageStream () //remove
+   this.manageStream () 
   }
   manageStream() {
     const cmd = this.testingService.streamStarted$.getValue()? 'stop':'start'
