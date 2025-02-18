@@ -26,8 +26,8 @@
   <section class="connection-panel" >
     <button  mat-button class="connection-panel__button"  
       [disabled]="['Reconnecting','Connecting','Disconnecting'].includes(this.quotesService.connectionState$ |async)" 
-      [ngClass]="(this.quotesService.connectionState$ |async)==='connected'?  'stop-connection' : null " 
-      [ngClass]="(this.quotesService.connectionState$ |async)==='disconnected'?  'start-connection': null " 
+      [ngClass]="
+      (this.quotesService.connectionState$ |async)==='connected'?  'stop-connection' : (this.quotesService.connectionState$ |async)==='disconnected'?  'start-connection': null " 
       (click)="manageStream()" >
       <mat-icon class="connection-panel__button-icon">{{(this.quotesService.connectionState$ |async)==='connected' ? 'cast_connected' : 'cast'}}</mat-icon>
       <span class="connection-panel__button-text">{{ (this.quotesService.connectionState$ |async)==='connected' ? "Stop " : "Connect" }}</span>

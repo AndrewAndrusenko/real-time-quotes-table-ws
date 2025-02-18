@@ -22,9 +22,6 @@ export class TestingPanelComponent {
       market: ['n']
     })
   }
-  ngAfterViewInit(): void {
-   this.manageStream () 
-  }
   manageStream() {
     const cmd = this.testingService.streamStarted$.getValue()? 'stop':'start'
     this.manageStreamForm.get('cmd').patchValue(cmd)
