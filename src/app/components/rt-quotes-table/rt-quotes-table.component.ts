@@ -4,6 +4,7 @@ import { debounceTime, filter, Observable, of, Subscription, switchMap} from 'rx
 import { QuotesDataService, IRate } from '../../services/quotes-data.service';
 import { FormControl } from '@angular/forms';
 import { AppStorage, StorageService, StorageType } from 'src/app/services/storage.service';
+import { AuthService } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-rt-quotes-table',
   templateUrl: './rt-quotes-table.component.html',
@@ -22,6 +23,7 @@ export class RTQuotesTableComponent {
   constructor(
     public quotesService: QuotesDataService,
     private storageService:StorageService,
+    public authService:AuthService
   ) {
     this.appStorage = this.storageService.initStorageObj(StorageType.IndexDB)
   }
@@ -37,6 +39,7 @@ export class RTQuotesTableComponent {
   }
   ngOnDestroy(): void {
     this.subsriptions.unsubscribe();
+
   }
   ngAfterViewInit(): void {
     this.manageStream ()
@@ -71,5 +74,8 @@ export class RTQuotesTableComponent {
     event.stopPropagation();//prevent closing of autocomplete list
     this.savedFilters.splice(this.savedFilters.findIndex(el=>el === oldFilter),1);
     this.subsriptions.add(this.appStorage.setStorageData('filterList',{code:'custom-filter',filter:this.savedFilters}).subscribe());
+  }
+  logOut(){
+    this.authService.logOut(this.authService.userData.getValue().userId)
   }
 }

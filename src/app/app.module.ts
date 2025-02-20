@@ -22,17 +22,20 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {MatSnackBarModule} from '@angular/material/snack-bar'
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { HttpErrorsHandlerInterceptor } from './services/errors-http.interceptor';
+import { MatMenuModule} from '@angular/material/menu'
+
 export const IndexDBConfig: DBConfig  = {
   name: 'RTQ',
   version: 1,
-  objectStoresMeta: [{
-    store: 'filters',
-    storeConfig: { keyPath: 'code', autoIncrement: false },
-    storeSchema: [
-      { name: 'code', keypath: 'code', options: { unique: true } },
-      { name: 'filter', keypath: 'filter', options: { unique: true } },
-    ]
-  }]
+  objectStoresMeta: [
+    {
+      store: 'rtq',
+      storeConfig: { keyPath: 'code', autoIncrement: false },
+      storeSchema: [
+        { name: 'code', keypath: 'code', options: { unique: true } },
+      ]
+    }
+  ]
 };
 @NgModule({
   declarations: [
@@ -57,6 +60,7 @@ export const IndexDBConfig: DBConfig  = {
     MatSnackBarModule,
     MatProgressBarModule,
     HttpClientModule,
+    MatMenuModule,
     NgxIndexedDBModule.forRoot(IndexDBConfig) 
     
   ],

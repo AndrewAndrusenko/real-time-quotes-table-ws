@@ -60,5 +60,16 @@ Backend:
   - Refactored restarting and closing WS server by using status literals and notifying client with correct codes of closing their connecions
 3 wss.js: Refactored instructions to close ws server
 
+20/02/25
+FrontEnd:
+1. Logout UI and functionlity have been Implemented
+  -RTQuotesTableComponent: A button with user Id and attached menu have been added to the component's template. Styles have been updated
+  -src/app/services/auth.guard.ts - CanActive function have been refactored: 
+    So before opeining the main page the service request api to refresh/veirfy jwt and in response it gets jwt payload which is used for UI purposes
+    JWT payload is saved in the indexDB storage
+  -AuthService: logout function has been added and refresh function have been refactored since they get jwt payload in the response
+Backend:
+1. testng-ws-server-node/auth-module.ts: Fixed verifyAccess function (handle case when clint doesn't have jwt cookies at all)
+
 
 

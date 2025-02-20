@@ -12,18 +12,34 @@
   </section>
   <details class="mng-panel" open *ngIf="showPanels">
   <summary class="mng-panel__header" > 
-    Connection Panel - Stream:
-    <span #status
-      class="mng-panel__header__status" 
-      [ngClass]="
-      (this.quotesService.streamActive$ | async) && (this.quotesService.connectionState$ |async)==='connected'? 'Connected': 
-      (this.quotesService.connectionState$ |async)==='connected'? 'Disconnected':''" 
-      >
-      {{(this.quotesService.streamActive$ | async)? ' Active':' No stream'}}
-    </span>
+    <div class="mng-panel__header__info">
+    <span> Connection Panel -&nbsp;</span> 
+    <div >
+      Stream:
+      <span #status
+        class="mng-panel__header__status" 
+        [ngClass]="
+        (this.quotesService.streamActive$ | async) && (this.quotesService.connectionState$ |async)==='connected'? 'Connected': 
+        (this.quotesService.connectionState$ |async)==='connected'? 'Disconnected':''" 
+        >
+        {{(this.quotesService.streamActive$ | async)? ' Active':' No stream'}}
+      </span>
+    </div>
+  </div>
+    <button mat-raised-button  [matMenuTriggerFor]="menu"  class="mng-panel__header__user_button">{{(this.authService.userData|async)?.userId}}</button>
+    <mat-menu #menu="matMenu">
+      <button mat-menu-item (click)="logOut()">
+        <mat-icon>logout</mat-icon>
+        <span>Log Out</span>
+      </button>
+      <button mat-menu-item routerLink="/register/logout/:logout">
+        <mat-icon>login</mat-icon>
+        <span>LogIn/SignUp</span>
+      </button>
+    </mat-menu>
   </summary>
 
-  <section class="connection-panel" >
+  <section class="connection-panel"  >
     <button  mat-button class="connection-panel__button"  
       [disabled]="['Reconnecting','Connecting','Disconnecting'].includes(this.quotesService.connectionState$ |async)" 
       [ngClass]="
